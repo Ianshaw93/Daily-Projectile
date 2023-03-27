@@ -3,8 +3,10 @@ import Lights from './Lights.jsx'
 import { Level } from './Level.jsx'
 import Player from './components/Player'
 
-export default function Experience()
+// click events on canvas as props; send to player
+export default function Experience({canvasIsClicked, camera, canvasRef})
 {
+    console.log(canvasRef.current) // attempt to access canvas properties
     return <>
 
 
@@ -12,7 +14,7 @@ export default function Experience()
             {/* <Debug /> */}
             <Lights />
             <Level />
-            <Player />
+            <Player canvasIsClicked={canvasIsClicked} camera={camera} canvasRef={canvasRef}/>
         </Physics>
 
 

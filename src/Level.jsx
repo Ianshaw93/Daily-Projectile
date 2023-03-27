@@ -1,11 +1,8 @@
 import * as THREE from 'three'
-// import Spinner from './Spinner.jsx'
 import { CylinderCollider, Debug, Physics, RigidBody } from '@react-three/rapier'
 import { useRef, useState, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-
-// import Player from "./components/Player"
 
 
 THREE.ColorManagement.legacyMode = false

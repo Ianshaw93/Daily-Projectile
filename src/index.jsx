@@ -3,6 +3,27 @@ import ReactDOM from 'react-dom/client'
 import { Canvas } from '@react-three/fiber'
 import Experience from './Experience.jsx'
 import { KeyboardControls } from '@react-three/drei'
+import { useRef, useState } from 'react'
+
+function CanvasComponent(props) {
+    const canvasRef = useRef()
+    const [canvasIsClicked, handleCanvasIsClicked] = useState(false)
+    const handlePointerDown = () => {
+        handleCanvasIsClicked(true)
+    } 
+    const handlePointerUp = () => {
+        handleCanvasIsClicked(false)
+    }
+
+    console.log("canvas width: ", canvasRef.current)
+
+    return (
+        <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef}>
+          <Experience canvasIsClicked={canvasIsClicked} camera={props.camera} canvasRef={canvasRef}/>
+        </Canvas>
+      );
+}
+
 
 const root = ReactDOM.createRoot(document.querySelector('#root'))
 
@@ -17,7 +38,7 @@ root.render(
         ] }
     >
 
-        <Canvas
+        <CanvasComponent
             shadows
             camera={ {
                 fov: 45,
@@ -25,8 +46,6 @@ root.render(
                 far: 200,
                 position: [ 2.5, 4, 6 ]
             } }
-            >
-            <Experience />
-        </Canvas>
+            />
     </KeyboardControls>
 )
