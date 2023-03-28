@@ -116,7 +116,7 @@ hamburgerGltf.scene.children.forEach((mesh) => {
     mesh.receiveShadow = true;
 })
 return <group position={position} >
-            <Physics>
+        
                 <Debug />
                 <RigidBody type='fixed'>
 
@@ -126,7 +126,7 @@ return <group position={position} >
                     <primitive object={hamburgerGltf.scene} scale={0.25} />
                     <CylinderCollider args={[ 0.5, 1.25 ]}/>
                 </RigidBody>   
-            </Physics>
+
         </group>
 }
 
