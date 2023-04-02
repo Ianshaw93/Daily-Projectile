@@ -1,4 +1,4 @@
-import { CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
+import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
@@ -7,11 +7,12 @@ import * as THREE from "three"
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked, camera, canvasRef}) {
 
-    const body = useRef()
+    const playerRef = useRef()
     const bodyMesh = useRef()
     const throwingNewspaper = useRef()
     const newspaper = useRef()
-    const basket = useRef()
+    const basketRef = useRef()
+    const unusedPapersGroupRef = useRef()
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
     const { rapier, world } = useRapier()
     const rapierWorld = world.raw()
@@ -29,14 +30,14 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
 
     const jump = () => {
 
-        const origin = body.current.translation()
+        const origin = playerRef.current.translation()
         origin.y -= 0.31
         const direction = { x:0, y:-1, z:0 }
         const ray = new rapier.Ray(origin, direction)
         const hit = rapierWorld.castRay(ray, 10, true)
         console.log(hit)
         if (hit.toi < 0.1) {
-            body.current.applyImpulse({ x:0, y:0.05, z:0 })
+            playerRef.current.applyImpulse({ x:0, y:0.05, z:0 })
         }
         
     }
@@ -80,14 +81,14 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         } 
 
 
-        body.current.applyImpulse(impulse)
-        body.current.applyTorqueImpulse(torque)
+        playerRef.current.applyImpulse(impulse)
+        playerRef.current.applyTorqueImpulse(torque)
 
         /**
          * Camera
          */
-        const bodyPosition = body.current.translation()
-        const bodyLinerVelocity = body.current.linvel()
+        const playerPosition = playerRef.current.translation()
+        const playerLinerVelocity = playerRef.current.linvel()
 
         // array of previous and current positions
         // find difference in the vectors
@@ -96,12 +97,12 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         // translation can be applied to kinematic rigidbody
 
         const cameraPosition = new THREE.Vector3()
-        cameraPosition.copy(bodyPosition)
+        cameraPosition.copy(playerPosition)
         cameraPosition.z += 2.5
         cameraPosition.y += 0.9
         
         const cameraTarget = new THREE.Vector3()
-        cameraTarget.copy(bodyPosition)
+        cameraTarget.copy(playerPosition)
 
         smoothedCameraPositon.lerp(cameraPosition, 5 * delta)
         smoothedCameraTarget.lerp(cameraTarget, 5 * delta)
@@ -110,45 +111,22 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         state.camera.lookAt(smoothedCameraTarget)
 
         // basket trial at alternative to moving newspaper location - have it sit in a basket that moves with player
-        basket.current.position.copy(bodyPosition)
-        basket.current.position.y -= 0.10
-        basket.current.position.z += 0.30  
+        basketRef.current.position.copy(playerPosition)
+        basketRef.current.position.y -= 0.10
+        basketRef.current.position.z += 0.30 
+        
+        // move unused papers in relation to basket
+        unusedPapersGroupRef.current.position.copy(basketRef.current.position)
 
         // throwingNewspaper.current.setNextKinematicTranslation(translation) // does nothing from what I can tell
         if (!aiming && !thrown) {
             // TODO: maintain non rigid body until throwing
 
-            newspaper.current.position.copy(bodyPosition)
+            newspaper.current.position.copy(playerPosition)
             newspaper.current.position.x -= -0.2
             newspaper.current.position.z += 0.4  
         }
 
-        // newspaper.current.setLinVel(bodyLinerVelocity)
-        // newspaper.current.position.set(bodyPosition)
-        // newspaper.current.position.set(bodyPosition.x, bodyPosition.y, bodyPosition.z);
-        // newspaper.current.position(bodyPosition ? bodyPosition : [0,0,0])        
-        // Notes should this logic be in the animation loop?
-        /**
-         * Newspaper position
-         */
-        // console.log(bodyPosition)
-        // if (!throwing) {
-        //     console.log(body)
-        //     if (body.current.translation()) {
-
-        //         const newspaperPos = new THREE.Vector3()
-        //         newspaperPos.copy(body.current.translation())
-        //         if (newspaperPos) {
-
-        //             newspaper.current.position.copy(newspaperPos)
-        //             // // newspaper.current.position.copy(bodyPosition ? bodyPosition : [0,0,0])
-        //             // // new
-                    // newspaper.current.position.y -= 0.10
-        //             newspaper.current.position.z += 0.30            
-        //         }
-        //     }
-        // }
-        // console.log("state: ", clientWidth)
         if (aiming && canvasIsClicked) { // aiming
             console.log("canvasIsClicked", canvasIsClicked)
             // Later have html or sprite arrow for aiming direction
@@ -157,28 +135,20 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             // when canvasIsClicke == False; apply impulse
             // camera looks at centre in x and y
 
-            // let meshScreenLocation = new THREE.Vector3()
-            // meshScreenLocation.copy(bodyMesh.current.parent.position)
-            // meshScreenLocation.project(camera) // not sure why error: Uncaught TypeError: Cannot read properties of undefined (reading 'elements')
-            // // at Vector3.applyMatrix4 (three.module.js:4498:15)
-            // // at Vector3.project
-            // console.log(meshScreenLocation)
-            // // console.log(bodyMesh.current.parent)
-            // // bodyMesh.current.parent.position
-            // console.log(camera)
-            console.log(bodyMesh.current.parent.position)
-            console.log(state.pointer)
+            console.log("state: ",state)
 
             // console.log(canvasRef.current)
             let canvasWidth = canvasRef.current.width
             let canvasHeight = canvasRef.current.height
             // get centre of screen
             let center = new THREE.Vector2()
-            
-            // console.log(rapierWorld)
-            // perhaps change to rigid body now?
-            // throws when click released
-            
+
+            if(throwingNewspaper.current){
+                // change z to behind object
+                // need to convert pointer position to 3d space
+                throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.1, z: playerPosition.z + 0.2})
+            }
+
             console.log("aiming")
         }
         // throwing when pointer lifted
@@ -189,9 +159,9 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             console.log("throwing")
             console.log(state.pointer)
             // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 }
-            // impulse = { x:0, y:0.01, z:-0.01 }
+            let impulse = { x:-state.pointer.x/100, y:0.1, z:state.pointer.y/100 }
             throwingNewspaper.current.applyImpulse(impulse)
+            // does below re-render mean reset of moving positions? - save current positions?
             setThrown(true)
             setAiming(false)
 
@@ -207,10 +177,29 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         // on release -> throw newspaper
     }
 
+    const newspaperShell = (
+    <>
+        <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
+        <meshStandardMaterial flatShading color="white" />        
+    </>
+    )
 
+    const paperQuantity = 6 // later send in via props - may need state if 1 subtracted each time removed from pile?
+
+    const unusedPapers = []
+    for (let i = 0; i < paperQuantity; i++){
+        (
+        // move group locations
+        // how to call ref on each one?
+        // how to have random placesment in basket?
+           unusedPapers.push( <mesh castShadow position={[0, 0, i/5]}>
+                {newspaperShell}
+            </mesh>)        
+        )}
     return <>
+    {/* TODO: player body should not collide with newspaper being thrown */}
     <RigidBody
-        ref={ body }
+        ref={ playerRef }
         restitution={ 0.2 }
         friction={ 1 } 
         linearDamping={ 0.5 }
@@ -228,13 +217,23 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             <meshStandardMaterial flatShading color="mediumpurple" />
         </mesh>
     </RigidBody>
+     {/*
+        create group for newspaper pile in basket
+     */}
+        <group ref={unusedPapersGroupRef}>
+            {unusedPapers}
+        </group>
     {/* // if throwing == False; newspaper.position = body.position + offset */}
-    {/* have a temp shelf for the newspapers? */}
-    <mesh castShadow ref={basket}>
+    {/* have a temp shelf for the newspapers? 
+    probably have newspaper pile located in relation to basket */}
+    <mesh castShadow ref={basketRef}>
         <boxGeometry args={ [ 1, 0.001, 1 ] } />
         <meshStandardMaterial flatShading color="yellow" />
     </mesh>
-    {/* future non rigidPaper to follow mouse pointer - switch occurs at throw */}
+    {/* 
+        future group nonRigidbodies (piles of non thrown newspapers) -> next in line becomes rigidbody
+        perhaps have rigidbody change back to non once at rest after throw
+    */}
 {(aiming || thrown)?<RigidBody
     ref={throwingNewspaper}
     restitution={ 0.2 }
@@ -246,15 +245,14 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     position={[ pointLocation.x, pointLocation.y, pointLocation.z ]}
     >
         <mesh castShadow>
-        <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
-        <meshStandardMaterial flatShading color="white" />
+            {newspaperShell}
         </mesh>
     </RigidBody>: 
+    // non rigidbody -> should be part of pile
             <mesh castShadow
-            ref={newspaper}
+            ref={newspaper} // ref with i?
             >
-                <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
-                <meshStandardMaterial flatShading color="white" />
+                {newspaperShell}
             </mesh>
     }
     </>

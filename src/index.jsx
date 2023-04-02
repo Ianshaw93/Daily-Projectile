@@ -7,19 +7,18 @@ import { useRef, useState } from 'react'
 
 function CanvasComponent(props) {
     const canvasRef = useRef()
-    const [canvasIsClicked, handleCanvasIsClicked] = useState(false)
+    const [canvasIsClicked, setCanvasIsClicked] = useState(false)
+    const [ pointerPosition, setPointerPosition ] = useState(null)
     const handlePointerDown = () => {
-        handleCanvasIsClicked(true)
+        setCanvasIsClicked(true)
     } 
     const handlePointerUp = () => {
-        handleCanvasIsClicked(false)
+        setCanvasIsClicked(false)
     }
-
-    console.log("canvas width: ", canvasRef.current)
 
     return (
         <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef}>
-          <Experience canvasIsClicked={canvasIsClicked} camera={props.camera} canvasRef={canvasRef}/>
+          <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} camera={props.camera} canvasRef={canvasRef}/>
         </Canvas>
       );
 }
