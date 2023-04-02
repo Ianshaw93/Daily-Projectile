@@ -21,6 +21,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(null)
     const [ thrown, setThrown ] = useState(false)
+    const [ paperQuantity, setPaperQuantity ] = useState(6)
 
 
     // let aiming = false // make both state?
@@ -164,6 +165,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             // does below re-render mean reset of moving positions? - save current positions?
             setThrown(true)
             setAiming(false)
+            setPaperQuantity((current) => current - 1)
 
         }
     })
@@ -184,7 +186,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     </>
     )
 
-    const paperQuantity = 6 // later send in via props - may need state if 1 subtracted each time removed from pile?
+    // const paperQuantity = 6 // later send in via props - may need state if 1 subtracted each time removed from pile?
 
     const unusedPapers = []
     for (let i = 0; i < paperQuantity; i++){
@@ -192,10 +194,13 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         // move group locations
         // how to call ref on each one?
         // how to have random placesment in basket?
-           unusedPapers.push( <mesh castShadow position={[0, 0, i/5]}>
-                {newspaperShell}
-            </mesh>)        
+           unusedPapers.push( 
+                <mesh castShadow position={[i/5 - 0.5, 0, 0.01]}>
+                    {newspaperShell}
+                </mesh>
+            )        
         )}
+        // on selection of first newspaper and throw of subsequent -> one unused newspaper removed from pile 
     return <>
     {/* TODO: player body should not collide with newspaper being thrown */}
     <RigidBody
