@@ -126,7 +126,12 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             newspaper.current.position.copy(playerPosition)
             newspaper.current.position.x -= -0.2
             newspaper.current.position.z += 0.4  
+            // console.log("pointer: ", state.pointer)
+            if(throwingNewspaper.current) {
+                console.log("throwingNewspaper location: ", throwingNewspaper.current.translation())
+            }
         }
+
 
         if (aiming && canvasIsClicked) { // aiming
             console.log("canvasIsClicked", canvasIsClicked)
@@ -135,8 +140,6 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             // impulse direction taken from pointer position in relation to body
             // when canvasIsClicke == False; apply impulse
             // camera looks at centre in x and y
-
-            console.log("state: ",state)
 
             // console.log(canvasRef.current)
             let canvasWidth = canvasRef.current.width
@@ -147,7 +150,11 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             if(throwingNewspaper.current){
                 // change z to behind object
                 // need to convert pointer position to 3d space
-                throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.1, z: playerPosition.z + 0.2})
+                // attempt -> paper always above body and transaparent paper with hand??
+                throwingNewspaper.current.setTranslation(playerPosition)
+                throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
+
+                // throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.3, z: playerPosition.z + 0.4})
             }
 
             console.log("aiming")
@@ -160,11 +167,16 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             console.log("throwing")
             console.log(state.pointer)
             // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            let impulse = { x:-state.pointer.x/100, y:0.1, z:state.pointer.y/100 }
+            // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
+            // calc y from magnitude
+            // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
+            let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
+            let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
             throwingNewspaper.current.applyImpulse(impulse)
             // does below re-render mean reset of moving positions? - save current positions?
             setThrown(true)
             setAiming(false)
+            // below should be actioned on aiming but returned to pile if not thrown
             setPaperQuantity((current) => current - 1)
 
         }
@@ -172,6 +184,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
 
     function initAim(event) {
         console.log("event: ",event)
+        // only if newspapers are left to throw!
         // Done: have object in place of newspaper - > cube for now
         // TODO: allow for drag of mouse -> distance of drag more force
         setPointLocation(event.point)
@@ -186,21 +199,24 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     </>
     )
 
-    // const paperQuantity = 6 // later send in via props - may need state if 1 subtracted each time removed from pile?
-
+    
+    if (playerRef.current && throwingNewspaper.current) {
+        // not sure if this is working?
+        throwingNewspaper.current.interactionGroups = ~ 1
+        playerRef.current.interactionGroups = ~2
+        
+    }
+    // later send paperQuantity in via props - may need state if 1 subtracted each time removed from pile?
     const unusedPapers = []
     for (let i = 0; i < paperQuantity; i++){
         (
-        // move group locations
-        // how to call ref on each one?
-        // how to have random placesment in basket?
-           unusedPapers.push( 
-                <mesh castShadow position={[i/5 - 0.5, 0, 0.01]}>
+            unusedPapers.push( 
+                <mesh castShadow position={[i/5 - 0.5, 0, 0.01]} key={i}>
                     {newspaperShell}
                 </mesh>
             )        
-        )}
-        // on selection of first newspaper and throw of subsequent -> one unused newspaper removed from pile 
+            )}
+
     return <>
     {/* TODO: player body should not collide with newspaper being thrown */}
     <RigidBody
@@ -210,6 +226,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         linearDamping={ 0.5 }
         angularDamping={ 0.5 }
         position={ [ 0, 1, 0 ] }
+        collisionGroup={1}
         >
         {/* TODO: allow click and drag to set and aim for throw; release for throw */}
         {/* Later: click area should be near character, allow from not on character later */}
@@ -229,8 +246,8 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             {unusedPapers}
         </group>
     {/* // if throwing == False; newspaper.position = body.position + offset */}
-    {/* have a temp shelf for the newspapers? 
-    probably have newspaper pile located in relation to basket */}
+    {/* temp shelf for papers -> until model made
+    newspaper pile located in relation to basket */}
     <mesh castShadow ref={basketRef}>
         <boxGeometry args={ [ 1, 0.001, 1 ] } />
         <meshStandardMaterial flatShading color="yellow" />
@@ -248,6 +265,7 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     // change z below to behind player position
     // later to be previous paper position
     position={[ pointLocation.x, pointLocation.y, pointLocation.z ]}
+    collisionGroup={2}
     >
         <mesh castShadow>
             {newspaperShell}

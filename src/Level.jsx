@@ -108,14 +108,24 @@ return <group position={position} >
 </group>
 }
 
+
 export function BlockEnd({ position = [ 0, 0, 0 ]}) {
-return <group position={position} >
+    return <group position={position} >
         
                 <RigidBody type='fixed'>
                     <mesh geometry={ boxGeometry } material={floor1Material} position={ [0, 0, 0] } scale={ [ 4, 0.2, 4 ] } receiveShadow />
                 </RigidBody>
 
         </group>
+}
+// TODO: create stand in houses etc off to both sides
+export function Property({ position = [ 4, 0, -4 ]}) {
+    // allow for lefthandside and righthandside
+    return <group position={position} >
+            <RigidBody type="fixed">
+                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ [ 0, - 0.1, 0 ] } scale={ [ 4, 0.2, 4 ] }  receiveShadow />
+            </RigidBody>
+    </group>    
 }
 
 export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ] }) {
@@ -140,6 +150,7 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
                 <Block key={index} position={[0, 0, -(index+1)*4]}/>
                 )}
             <BlockEnd position={[0, 0, -(blocks.length+1)*4]}/>
+            <Property />
 
     </>
     )
