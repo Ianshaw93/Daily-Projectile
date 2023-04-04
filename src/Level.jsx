@@ -118,17 +118,19 @@ export function BlockEnd({ position = [ 0, 0, 0 ]}) {
 
         </group>
 }
+// TODO: create garden walls -> can only ride on road
+
 // TODO: create stand in houses etc off to both sides
-export function Property({ position = [ 4, 0, -4 ]}) {
+// unclear why error with unique key
+export function Property({ position = [ 4, 0, -4 ], id}) {
     // allow for lefthandside and righthandside
-    return <group position={position} >
-            <RigidBody type="fixed">
-                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ [ 0, - 0.1, 0 ] } scale={ [ 4, 0.2, 4 ] }  receiveShadow />
+    return <RigidBody type="fixed" key={"rigidbody" + id}>
+                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ position } scale={ [ 4, 0.2, 4 ] }  receiveShadow key={id}/>
             </RigidBody>
-    </group>    
+
 }
 
-export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ] }) {
+export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ], houseLocations }) {
 
     const blocks = useMemo(() => {
         const blocks = []
@@ -138,8 +140,24 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
             blocks.push(type)
         }
         return blocks
-    }, [ count, types ])
+    }, [ count ])
 
+    // houseLocations
+    /**
+     * format: both sides depending on count
+     * how to change??
+     */
+    const properties = []
+    for (let i = 0; i < count; i ++) {
+        // one lhs
+        properties.push(
+        <Property position = {[ -4, 0, (-4*i -4) ]} id={"lhs"+ i}/>
+        )
+        // one rhs
+        properties.push(
+            <Property position = {[ 4, 0, (-4*i -4) ]} id={"rhs" + count + i}/>
+            )
+    }
 
     return(
 
@@ -150,7 +168,7 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
                 <Block key={index} position={[0, 0, -(index+1)*4]}/>
                 )}
             <BlockEnd position={[0, 0, -(blocks.length+1)*4]}/>
-            <Property />
+            {properties}
 
     </>
     )

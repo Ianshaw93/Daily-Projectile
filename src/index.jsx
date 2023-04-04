@@ -18,7 +18,7 @@ function CanvasComponent(props) {
 
     return (
         <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef}>
-          <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} camera={props.camera} canvasRef={canvasRef}/>
+          <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>
         </Canvas>
       );
 }

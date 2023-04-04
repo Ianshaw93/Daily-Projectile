@@ -1,11 +1,17 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 
 // isCanvasClicked sent as prop 
-export default function Player({canvasIsClicked, camera, canvasRef}) {
+export default function Player({canvasIsClicked, onPaperLocationChange}) {
+
+    let numberOfPapers = 6
+    const paperRefs = useRef(Array.from({length: numberOfPapers}, () => createRef()))
+    console.log("paperRefs: ", paperRefs)
+    const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(null)
+    // todo: update position if currentThrowingPaper
 
     const playerRef = useRef()
     const bodyMesh = useRef()
@@ -119,45 +125,59 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         // move unused papers in relation to basket
         unusedPapersGroupRef.current.position.copy(basketRef.current.position)
 
-        // throwingNewspaper.current.setNextKinematicTranslation(translation) // does nothing from what I can tell
-        if (!aiming && !thrown) {
-            // TODO: maintain non rigid body until throwing
+        // // throwingNewspaper.current.setNextKinematicTranslation(translation) // does nothing from what I can tell
+        // if (!aiming && !thrown) {
+        //     // TODO: maintain non rigid body until throwing
 
-            newspaper.current.position.copy(playerPosition)
-            newspaper.current.position.x -= -0.2
-            newspaper.current.position.z += 0.4  
-            // console.log("pointer: ", state.pointer)
-            if(throwingNewspaper.current) {
-                console.log("throwingNewspaper location: ", throwingNewspaper.current.translation())
-            }
+        //     newspaper.current.position.copy(playerPosition)
+        //     newspaper.current.position.x -= -0.2
+        //     newspaper.current.position.z += 0.4  
+        //     // console.log("pointer: ", state.pointer)
+        //     // add final resting place to onPaperLocationChange
+        // }
+        if(throwingNewspaper.current) {
+            if (throwingNewspaper.current.linvel().x == 0) {
+
+                console.log("still throwingNewspaper location: ", throwingNewspaper.current.translation())
+            } 
         }
-
-
+        
+        
         if (aiming && canvasIsClicked) { // aiming
-            console.log("canvasIsClicked", canvasIsClicked)
+            /**
+             * record location of newspaper if throwing == true
+             * later change mesh to other rigidbody with same angular velocity
+             * then change throwing to false
+             * below -> throwing paper from state
+            */
+           
+           if(!thrown && throwingNewspaper.current){
+               // change z to behind object
+                // need to convert pointer position to 3d space
+                // attempt -> paper always above body and transaparent paper with hand??
+                // todo: have zero spinning; stay flat until thrown?
+                throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
+                
+                // throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.3, z: playerPosition.z + 0.4})
+            }
+            
+            if (thrown) {
+                // check size of location array
+                // should push to array
+                // too slow?
+                console.log("update paper location: ", throwingNewspaper.current.translation())
+                onPaperLocationChange(throwingNewspaper.current.translation())
+                // check that linvel is 0
+                setThrown(false)
+            }
+
+
             // Later have html or sprite arrow for aiming direction
             // Aim: to have newspaper move back to pointer position, like loading for a throw
             // impulse direction taken from pointer position in relation to body
             // when canvasIsClicke == False; apply impulse
             // camera looks at centre in x and y
 
-            // console.log(canvasRef.current)
-            let canvasWidth = canvasRef.current.width
-            let canvasHeight = canvasRef.current.height
-            // get centre of screen
-            let center = new THREE.Vector2()
-
-            if(throwingNewspaper.current){
-                // change z to behind object
-                // need to convert pointer position to 3d space
-                // attempt -> paper always above body and transaparent paper with hand??
-                throwingNewspaper.current.setTranslation(playerPosition)
-                throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-
-                // throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.3, z: playerPosition.z + 0.4})
-            }
-
-            console.log("aiming")
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked) {
@@ -207,6 +227,8 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         
     }
     // later send paperQuantity in via props - may need state if 1 subtracted each time removed from pile?
+    // TODO: use current throwing paper state -> relates to ref
+    // 
     const unusedPapers = []
     for (let i = 0; i < paperQuantity; i++){
         (
@@ -217,8 +239,17 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
             )        
             )}
 
+    /**
+     *     // TODO: sense that paper landed on house tile -> throwing paper before moved again
+    // perhaps change thrown with normal paper mesh
+     */
+
+
     return <>
-    {/* TODO: player body should not collide with newspaper being thrown */}
+    {/* 
+        TODO: player body should not collide with newspaper being thrown 
+
+    */}
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }
@@ -255,6 +286,8 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
     {/* 
         future group nonRigidbodies (piles of non thrown newspapers) -> next in line becomes rigidbody
         perhaps have rigidbody change back to non once at rest after throw
+        // use array of ref => rigidbody if is current throwing paper or has been thrown
+        // otherwise -> not a mesh (i.e. represented by the unusedPapers group -> removed from pile when currently thrown paper)
     */}
 {(aiming || thrown)?<RigidBody
     ref={throwingNewspaper}
@@ -270,13 +303,25 @@ export default function Player({canvasIsClicked, camera, canvasRef}) {
         <mesh castShadow>
             {newspaperShell}
         </mesh>
-    </RigidBody>: 
-    // non rigidbody -> should be part of pile
-            <mesh castShadow
-            ref={newspaper} // ref with i?
-            >
+    </RigidBody>: null
+    }
+
+    {Array.from({length: numberOfPapers}, (_, index) => {(aiming || thrown)?
+        <RigidBody
+            ref={paperRefs[index]}
+            restitution={ 0.2 }
+            friction={ 1 } 
+            linearDamping={ 0.5 }
+            angularDamping={ 0.5 }
+            // change z below to behind player position
+            // later to be previous paper position
+            position={[ pointLocation.x, pointLocation.y, pointLocation.z ]}
+            collisionGroup={2}
+        >
+            <mesh castShadow>
                 {newspaperShell}
             </mesh>
-    }
+        </RigidBody> : null       
+    })}
     </>
 }
