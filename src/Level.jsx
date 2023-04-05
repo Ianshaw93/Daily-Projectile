@@ -121,11 +121,11 @@ export function BlockEnd({ position = [ 0, 0, 0 ]}) {
 // TODO: create garden walls -> can only ride on road
 
 // TODO: create stand in houses etc off to both sides
-// unclear why error with unique key
+// unclear: why error with unique key
 export function Property({ position = [ 4, 0, -4 ], id}) {
     // allow for lefthandside and righthandside
-    return <RigidBody type="fixed" key={"rigidbody" + id}>
-                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ position } scale={ [ 4, 0.2, 4 ] }  receiveShadow key={id}/>
+    return <RigidBody type="fixed">
+                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ position } scale={ [ 4, 0.2, 4 ] }  receiveShadow />
             </RigidBody>
 
 }
@@ -151,11 +151,12 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
     for (let i = 0; i < count; i ++) {
         // one lhs
         properties.push(
-        <Property position = {[ -4, 0, (-4*i -4) ]} id={"lhs"+ i}/>
+            // unclear: why id error in console?
+        <Property position = {[ -4, 0, (-4*i -4) ]} key={i}/>
         )
         // one rhs
         properties.push(
-            <Property position = {[ 4, 0, (-4*i -4) ]} id={"rhs" + count + i}/>
+            <Property position = {[ 4, 0, (-4*i -4) ]} key={count + i}/>
             )
     }
 

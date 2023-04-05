@@ -27,7 +27,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(null)
     const [ thrown, setThrown ] = useState(false)
-    const [ paperQuantity, setPaperQuantity ] = useState(6)
+    const [ paperQuantity, setPaperQuantity ] = useState(numberOfPapers)
 
 
     // let aiming = false // make both state?
@@ -125,22 +125,13 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         // move unused papers in relation to basket
         unusedPapersGroupRef.current.position.copy(basketRef.current.position)
 
-        // // throwingNewspaper.current.setNextKinematicTranslation(translation) // does nothing from what I can tell
-        // if (!aiming && !thrown) {
-        //     // TODO: maintain non rigid body until throwing
+        // if(throwingNewspaper.current) {
+        //     if (throwingNewspaper.current.linvel().x == 0) {
 
-        //     newspaper.current.position.copy(playerPosition)
-        //     newspaper.current.position.x -= -0.2
-        //     newspaper.current.position.z += 0.4  
-        //     // console.log("pointer: ", state.pointer)
-        //     // add final resting place to onPaperLocationChange
+        //         console.log("still throwingNewspaper location: ", throwingNewspaper.current.translation())
+                
+        //     } 
         // }
-        if(throwingNewspaper.current) {
-            if (throwingNewspaper.current.linvel().x == 0) {
-
-                console.log("still throwingNewspaper location: ", throwingNewspaper.current.translation())
-            } 
-        }
         
         
         if (aiming && canvasIsClicked) { // aiming
@@ -161,15 +152,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
                 // throwingNewspaper.current.setTranslation({x: state.pointer.x, y: state.pointer.y+0.3, z: playerPosition.z + 0.4})
             }
             
-            if (thrown) {
-                // check size of location array
-                // should push to array
-                // too slow?
-                console.log("update paper location: ", throwingNewspaper.current.translation())
-                onPaperLocationChange(throwingNewspaper.current.translation())
-                // check that linvel is 0
-                setThrown(false)
-            }
+
 
 
             // Later have html or sprite arrow for aiming direction
@@ -192,6 +175,8 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
+            console.timeEnd("pointerUp")
+
             throwingNewspaper.current.applyImpulse(impulse)
             // does below re-render mean reset of moving positions? - save current positions?
             setThrown(true)
@@ -203,6 +188,15 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     })
 
     function initAim(event) {
+        if (thrown) {
+            // check size of location array
+            // should push to array
+            // too slow?
+            console.log("update paper location: ", throwingNewspaper.current.translation())
+            onPaperLocationChange(throwingNewspaper.current.translation())
+            // check that linvel is 0
+            setThrown(false)
+        }
         console.log("event: ",event)
         // only if newspapers are left to throw!
         // Done: have object in place of newspaper - > cube for now
@@ -306,22 +300,27 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     </RigidBody>: null
     }
 
-    {Array.from({length: numberOfPapers}, (_, index) => {(aiming || thrown)?
+    {Array.from({length: numberOfPapers}, (_, index) => {
+        return(
         <RigidBody
-            ref={paperRefs[index]}
+            ref={paperRefs.current[index]}
             restitution={ 0.2 }
             friction={ 1 } 
             linearDamping={ 0.5 }
             angularDamping={ 0.5 }
             // change z below to behind player position
             // later to be previous paper position
-            position={[ pointLocation.x, pointLocation.y, pointLocation.z ]}
+            position={[ 0, 0.5, -1 ]}
             collisionGroup={2}
+            key={index}
         >
             <mesh castShadow>
-                {newspaperShell}
+            <>
+        <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
+        <meshStandardMaterial flatShading color="black" />        
+            </>
             </mesh>
-        </RigidBody> : null       
+        </RigidBody> )       
     })}
     </>
 }
