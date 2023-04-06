@@ -10,12 +10,15 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     let numberOfPapers = 6
     const paperRefs = useRef(Array.from({length: numberOfPapers}, () => createRef()))
     console.log("paperRefs: ", paperRefs)
-    const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(null)
+    // const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(null)
+    const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(0)
+
     // todo: update position if currentThrowingPaper
 
     const playerRef = useRef()
     const bodyMesh = useRef()
-    const throwingNewspaper = useRef()
+    // let throwingNewspaper = useRef()
+    let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const newspaper = useRef()
     const basketRef = useRef()
     const unusedPapersGroupRef = useRef()
@@ -25,7 +28,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ smoothedCameraPositon ] = useState(() => new THREE.Vector3(10, 10, 10))
     const [ smoothedCameraTarget ] = useState(() => new THREE.Vector3())
     const [ aiming, setAiming ] = useState(false)
-    const [ pointLocation, setPointLocation ] = useState(null)
+    const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
     const [ paperQuantity, setPaperQuantity ] = useState(numberOfPapers)
 
@@ -95,7 +98,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
          * Camera
          */
         const playerPosition = playerRef.current.translation()
-        const playerLinerVelocity = playerRef.current.linvel()
 
         // array of previous and current positions
         // find difference in the vectors
@@ -183,12 +185,22 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             setPaperQuantity((current) => current - 1)
+            if (currentThrowingPaper < numberOfPapers - 2) {
+
+                throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
+            }
+            setCurrentThrowingPaper((current) => (current < numberOfPapers - 2 ) ? current + 1 : current)
 
         }
     })
 
     function initAim(event) {
         if (thrown) {
+            // setCurrentThrowingPaper((current) => (current < numberOfPapers - 2 ) ? current + 1 : current)
+            // if (currentThrowingPaper < numberOfPapers - 2) {
+
+            //     throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
+            // }
             // check size of location array
             // should push to array
             // too slow?
@@ -214,12 +226,12 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     )
 
     
-    if (playerRef.current && throwingNewspaper.current) {
-        // not sure if this is working?
-        throwingNewspaper.current.interactionGroups = ~ 1
-        playerRef.current.interactionGroups = ~2
+    // if (playerRef.current && throwingNewspaper.current) {
+    //     // not sure if this is working?
+    //     throwingNewspaper.current.interactionGroups = ~ 1
+    //     playerRef.current.interactionGroups = ~2
         
-    }
+    // }
     // later send paperQuantity in via props - may need state if 1 subtracted each time removed from pile?
     // TODO: use current throwing paper state -> relates to ref
     // 
@@ -283,7 +295,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         // use array of ref => rigidbody if is current throwing paper or has been thrown
         // otherwise -> not a mesh (i.e. represented by the unusedPapers group -> removed from pile when currently thrown paper)
     */}
-{(aiming || thrown)?<RigidBody
+{/* {(aiming || thrown)?<RigidBody
     ref={throwingNewspaper}
     restitution={ 0.2 }
     friction={ 1 } 
@@ -298,10 +310,10 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             {newspaperShell}
         </mesh>
     </RigidBody>: null
-    }
+    } */}
 
     {Array.from({length: numberOfPapers}, (_, index) => {
-        return(
+        return( ((aiming || thrown) && index <= currentThrowingPaper) ?
         <RigidBody
             ref={paperRefs.current[index]}
             restitution={ 0.2 }
@@ -310,17 +322,18 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             angularDamping={ 0.5 }
             // change z below to behind player position
             // later to be previous paper position
-            position={[ 0, 0.5, -1 ]}
+            position={[ 0, -5, -1 ]}
             collisionGroup={2}
             key={index}
         >
             <mesh castShadow>
             <>
         <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
-        <meshStandardMaterial flatShading color="black" />        
+        <meshStandardMaterial flatShading color="white" />        
             </>
             </mesh>
-        </RigidBody> )       
+        </RigidBody> : null
+        )       
     })}
     </>
 }
