@@ -8,7 +8,9 @@ import useGame from "../stores/useGame";
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked, onPaperLocationChange}) {
     
-    const papersLeft = useGame((state) => {return state.papersLeft})
+    const papersLeft = useGame((state) => {return state.papersLeft}) // how to update?
+    const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
+
     let startingNumPapers = 6
     const paperRefs = useRef(Array.from({length: startingNumPapers}, () => createRef()))
     console.log("paperRefs: ", paperRefs)
@@ -21,9 +23,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const bodyMesh = useRef()
     // let throwingNewspaper = useRef()
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
-    const newspaper = useRef()
-    const basketRef = useRef()
-    const unusedPapersGroupRef = useRef()
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
     const { rapier, world } = useRapier()
     const rapierWorld = world.raw()
@@ -32,7 +31,8 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
-    const [ paperQuantity, setPaperQuantity ] = useState(papersLeft)
+    // const [ paperQuantity, setPaperQuantity ] = useState(papersLeft)
+
 
 
     // let aiming = false // make both state?
@@ -131,7 +131,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
                 // todo: have zero spinning; stay flat until thrown?
                 throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
                 console.log("currentThrowingPaper: ", currentThrowingPaper)
-                console.log("paperQuantity: ", paperQuantity)
+                // console.log("paperQuantity: ", paperQuantity)
             }
             
 
@@ -163,7 +163,8 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             setThrown(true)
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
-            setPaperQuantity((current) => current - 1)
+            // setPaperQuantity((current) => current - 1)
+            subtractPaperLeft()
             if (currentThrowingPaper < papersLeft - 2) {
 
                 throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
@@ -182,7 +183,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             setThrown(false)
         }
         console.log("event: ",event)
-        if (paperQuantity >= 0) {
+        if (papersLeft > 0) {
 
             // only if newspapers are left to throw!
             // Done: have object in place of newspaper - > cube for now
