@@ -3,12 +3,14 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
+import useGame from "../stores/useGame";
 
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked, onPaperLocationChange}) {
-
-    let numberOfPapers = 6
-    const paperRefs = useRef(Array.from({length: numberOfPapers}, () => createRef()))
+    
+    const papersLeft = useGame((state) => {return state.papersLeft})
+    let startingNumPapers = 6
+    const paperRefs = useRef(Array.from({length: startingNumPapers}, () => createRef()))
     console.log("paperRefs: ", paperRefs)
     // const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(null)
     const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(0)
@@ -30,7 +32,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
-    const [ paperQuantity, setPaperQuantity ] = useState(numberOfPapers)
+    const [ paperQuantity, setPaperQuantity ] = useState(papersLeft)
 
 
     // let aiming = false // make both state?
@@ -162,11 +164,11 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             setPaperQuantity((current) => current - 1)
-            if (currentThrowingPaper < numberOfPapers - 2) {
+            if (currentThrowingPaper < papersLeft - 2) {
 
                 throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
             }
-            setCurrentThrowingPaper((current) => (current < numberOfPapers - 2 ) ? current + 1 : current)
+            setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
 
         }
     })
@@ -230,7 +232,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         TODO: create bag for papers
      */}
 
-    {Array.from({length: numberOfPapers}, (_, index) => {
+    {Array.from({length: startingNumPapers}, (_, index) => {
         return( ((aiming || thrown) && index <= currentThrowingPaper) ?
         <RigidBody
             ref={paperRefs.current[index]}

@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import Experience from './Experience.jsx'
 import { KeyboardControls } from '@react-three/drei'
 import { useRef, useState } from 'react'
+import Interface from './Interface'
 
 function CanvasComponent(props) {
     const canvasRef = useRef()
@@ -47,5 +48,6 @@ root.render(
                 position: [ 2.5, 4, 6 ]
             } }
             />
+        <Interface />
     </KeyboardControls>
 )
