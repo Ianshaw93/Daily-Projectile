@@ -8,8 +8,11 @@ import useGame from "../stores/useGame";
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked, onPaperLocationChange}) {
     
-    const papersLeft = useGame((state) => {return state.papersLeft}) // how to update?
+    // Zustand states and functions
+    const papersLeft = useGame((state) => {return state.papersLeft})
+    const thrownPaperLocations = useGame((state) => state.addPaperLocation) // probably not needed in this component
     const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
+    const addPaperLocation = useGame((state) => state.addPaperLocation)
 
     let startingNumPapers = 6
     const paperRefs = useRef(Array.from({length: startingNumPapers}, () => createRef()))
@@ -31,12 +34,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
-    // const [ paperQuantity, setPaperQuantity ] = useState(papersLeft)
-
-
-
-    // let aiming = false // make both state?
-    // let throwing = false 
 
     let playerPositionArray = []
 
@@ -161,6 +158,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
 
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
+            // add location to array once angular velocity == zero
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
@@ -172,11 +170,32 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
 
         }
+
+        if (thrown) { // perhaps check that current > 0 as players may throw 2 in quick succession
+            // check that location array does not contain this element
+            let prevIndex = (currentThrowingPaper < startingNumPapers - 1) ? (currentThrowingPaper - 1) : currentThrowingPaper
+            // console.log("prevIndex: ", prevIndex)
+            // may need to hold location array locally in state -> double check length
+            // check if y miles below -> send location
+            // check size of array
+            if (thrownPaperLocations.length == prevIndex && currentThrowingPaper > 0) {
+
+                if (paperRefs.current[prevIndex].current.linvel() == {x: 0, y:0, z:0} || paperRefs.current[prevIndex].current.translation().y < -3) {
+                    // add location to array
+                    let newLocation = paperRefs.current[prevIndex].current.translation()
+                    addPaperLocation(newLocation)
+                    // console.log("thrownPaperLocations: ", thrownPaperLocations)
+                }
+                // for final mesh thrown -> add final to array
+                console.log("currentPaperIndex: ", currentThrowingPaper)
+            }
+        }
     })
 
     function initAim(event) {
+        
         if (thrown) { // not actioned on first go; only after at least 1 has been thrown
-            console.log("update paper location: ", throwingNewspaper.current.translation())
+            console.log("thrownPaperLocations: ", thrownPaperLocations)
             // later auto locate when newspaper comes to rest
             onPaperLocationChange(throwingNewspaper.current.translation()) // how to send location of last paper?
             // check that linvel is 0
@@ -204,6 +223,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     /**
      *     // TODO: sense that paper landed on house tile -> throwing paper before moved again
     // perhaps change thrown with normal paper mesh
+    // each time thrown selected -> add mesh location to array -> if mesh velocity == 0
      */
 
 

@@ -5,15 +5,27 @@ export default create((set) => {
     return {
         startingNumPapers: 6,
         papersLeft: 6,
-
-        // function to remove paper from papersLeft -> to be called from Player
+        papersDelivered: 0,
+        thrownPaperLocations: [],
+        /** TODO: have location of thrown papers array
+         * check against property/houses locations
+         * if on property add to papersDelivered 
+         * 
+         *  */ 
+        // function to remove paper from papersLeft -> called from Player
         subtractPaperLeft: () => {
             set((state) => {
-                // console.log("", state.papersLeft)
                 if (state.papersLeft > 0) 
                     return { papersLeft: state.papersLeft - 1}
                 return{}
             })
+        },
+
+        addPaperLocation: (newLocation) => {
+            set((state) => ({
+                thrownPaperLocations: [...state.thrownPaperLocations, newLocation]
+
+            }))
         }
 
     }

@@ -48,6 +48,7 @@ root.render(
                 position: [ 2.5, 4, 6 ]
             } }
             />
+        {/* interface needs access to paperThrown -> use state management? */}
         <Interface />
     </KeyboardControls>
 )
