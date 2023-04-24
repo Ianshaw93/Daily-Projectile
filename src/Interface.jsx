@@ -3,6 +3,7 @@ import useGame from "./stores/useGame"
 export default function Interface() {
     const papersLeft = useGame((state) => {return state.papersLeft}) 
     const startingNumPapers = useGame((state) => {return state.startingNumPapers}) 
+    const papersDelivered = useGame((state) => {return state.papersDelivered}) 
 
 
     let papersThrown = startingNumPapers - papersLeft
@@ -20,6 +21,6 @@ export default function Interface() {
     return (<div className="interface">
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
-        <div className="papersDelivered">📰 0 / 6 </div>
+        <div className="papersDelivered">📰 {papersDelivered} / {startingNumPapers} </div>
     </div>)
 }
