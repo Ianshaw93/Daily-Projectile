@@ -164,7 +164,7 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
             let x = -4
             let y = 0
             let z = -4*i -4
-            let maxDelta = [2.2, 0, -2.2]
+            let maxDelta = [2, 0, 2]
             let centre = [x, y, z] 
             properties.push(
             <Property position = {[ x, y, z ]} key={i}/>
@@ -174,7 +174,7 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
             x = 4
             y = 0
             z = -4*i -4
-            centre = [x+2, y, z-2] 
+            centre = [x, y, z] 
             properties.push(
                 <Property position = {[ x, y, z ]} key={count + i}/>
                 )

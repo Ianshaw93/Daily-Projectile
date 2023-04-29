@@ -124,9 +124,13 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             */
            
            if(!thrown && throwingNewspaper.current){
+                console.log("throwingNewspaper.current: ", throwingNewspaper.current)
                 // attempt -> paper always above body and transaparent paper with hand??
-                // todo: have zero spinning; stay flat until thrown?
+                // bug fixed: 2nd paper onwards throwing downwards
+                // setLinVel == 0 to overcome velocity from free falling pre throw
+                throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
                 throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
+                
                 // console.log("paperQuantity: ", paperQuantity)
             }
             
@@ -155,7 +159,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
             setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
-            // add location to array once angular velocity == zero
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
@@ -179,8 +182,8 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         }
         
         /**
-         * bug: -3y triggered before paper is thrown
-         * possible fix: check that index is in the thrown array
+         * bug fixed: -3y triggered before paper is thrown
+         * by checking that index is in the thrownIndexArray
          */
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
