@@ -29,6 +29,7 @@ export default create((set) => {
             // check if onTarget
             /**
              * unclear if second set is actioned; perhaps have logic in helperfunctions?
+             * bug why thrownPaperLocations not updating within Player.jsx?
              */
 
             set((state) => ({
@@ -41,7 +42,7 @@ export default create((set) => {
                 console.log("useGame state.thrownPaperLocations: ", state.thrownPaperLocations)
                 
                 if (checkIfOnTarget(newLocation, state.targetLocations)) {
-                    console.log("useGame onTarget: ")
+                    console.log("useGame onTarget: ", newLocation)
                 // if so add to papers delivered
                     return { papersDelivered: state.papersDelivered + 1}
                 }

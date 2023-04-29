@@ -20,7 +20,6 @@ export default function Experience({canvasIsClicked, canvasRef})
         setThrownPaperLocations(prev =>  [...prev ,position]);
     }
 
-    console.log("thrownPaperLocations: ", thrownPaperLocations)
 
     
 

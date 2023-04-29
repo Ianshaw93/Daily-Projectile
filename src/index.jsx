@@ -14,7 +14,6 @@ function CanvasComponent(props) {
         setCanvasIsClicked(true)
     } 
     const handlePointerUp = () => {
-        console.time("pointerUp")
         setCanvasIsClicked(false)
     }
 

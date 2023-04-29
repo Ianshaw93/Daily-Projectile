@@ -143,8 +143,6 @@ export function Property({ position = [ 4, 0, -4 ]}) {
 }
 
 export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ], houseLocations }) {
-    const thrownPaperLocations = useGame((state) => state.addPaperLocation) 
-    const papersDelivered = useGame((state) => state.addPaperLocation) 
     const setTargetLocations = useGame((state) => {return state.setTargetLocations})
     const blocks = useMemo(() => {
         const blocks = []
@@ -157,35 +155,37 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
     }, [ count ])
 
     // useEffect for when thrownPaperLocations changes
-    useEffect(() => {
-        
-    }, [thrownPaperLocations])
-       
-    const housePositions = [] // add to useGame
-    const properties = []
-    for (let i = 0; i < count; i ++) {
-        // one lhs
-        let x = -4
-        let y = 0
-        let z = -4*i -4
-        let maxDelta = [2, 0, -2]
-        let centre = [x+2, y, z-2] 
-        properties.push(
-        <Property position = {[ x, y, z ]} key={i}/>
-        )
-        housePositions.push({"centre": centre, "maxDelta": maxDelta})
-        // one rhs
-        x = 4
-        y = 0
-        z = -4*i -4
-        centre = [x+2, y, z-2] 
-        properties.push(
-            <Property position = {[ x, y, z ]} key={count + i}/>
+    const properties = useMemo(() => {
+        // possibly include below in useeffect
+        const housePositions = [] // add to useGame
+        const properties = []
+        for (let i = 0; i < count; i ++) {
+            // one lhs
+            let x = -4
+            let y = 0
+            let z = -4*i -4
+            let maxDelta = [2.2, 0, -2.2]
+            let centre = [x, y, z] 
+            properties.push(
+            <Property position = {[ x, y, z ]} key={i}/>
             )
-        housePositions.push({"centre": centre, "maxDelta": maxDelta})
-    }
-    setTargetLocations(housePositions)
-    console.log("housePositions: ", housePositions)
+            housePositions.push({"centre": centre, "maxDelta": maxDelta})
+            // one rhs
+            x = 4
+            y = 0
+            z = -4*i -4
+            centre = [x+2, y, z-2] 
+            properties.push(
+                <Property position = {[ x, y, z ]} key={count + i}/>
+                )
+            housePositions.push({"centre": centre, "maxDelta": maxDelta})
+        }
+        setTargetLocations(housePositions)
+
+        return properties
+    }, [count])
+       
+    // console.log("housePositions: ", housePositions)
     
     // console.log("properties: ", properties[0].props.position) // hacky way to pass location -> not centre!!
 
