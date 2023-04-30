@@ -8,20 +8,24 @@ import useGame from "../stores/useGame";
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked, onPaperLocationChange}) {
     
-    const papersLeft = useGame((state) => {return state.papersLeft}) // how to update?
+    // Zustand states and functions
+    const papersLeft = useGame((state) => {return state.papersLeft})
+    const thrownPaperLocations = useGame((state) => {return state.thrownPaperLocations}) // probably not needed in this component
     const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
+    const addPaperLocation = useGame((state) => state.addPaperLocation)
 
     let startingNumPapers = 6
+    /**
+     * ref array created for all papers users can throw
+     * Bug: position triggered when < -3 y but paper yet to be thrown
+     * perhaps add to thrown state array -> check that current has been thrown
+     */
     const paperRefs = useRef(Array.from({length: startingNumPapers}, () => createRef()))
-    console.log("paperRefs: ", paperRefs)
-    // const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(null)
     const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(0)
-
-    // todo: update position if currentThrowingPaper
 
     const playerRef = useRef()
     const bodyMesh = useRef()
-    // let throwingNewspaper = useRef()
+    
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
     const { rapier, world } = useRapier()
@@ -31,14 +35,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
-    // const [ paperQuantity, setPaperQuantity ] = useState(papersLeft)
-
-
-
-    // let aiming = false // make both state?
-    // let throwing = false 
-
-    let playerPositionArray = []
+    const [thrownIndexArray, setThrownIndexArray] = useState([])
 
     const jump = () => {
 
@@ -47,7 +44,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         const direction = { x:0, y:-1, z:0 }
         const ray = new rapier.Ray(origin, direction)
         const hit = rapierWorld.castRay(ray, 10, true)
-        console.log(hit)
         if (hit.toi < 0.1) {
             playerRef.current.applyImpulse({ x:0, y:0.05, z:0 })
         }
@@ -59,13 +55,14 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         const unsubscribeJump = subscribeKeys((state) => {
             return state.jump
         }, (value) => {
-            console.log('Jump?', value)
             if(value) {jump()}
         })
         return () => {
             unsubscribeJump()
         }
     }, [])
+
+    console.log("thrown indexes: ", thrownIndexArray)
 
     useFrame((state, delta) => {
         const { forward, backward, leftward, rightward} = getKeys()
@@ -127,10 +124,13 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             */
            
            if(!thrown && throwingNewspaper.current){
+                console.log("throwingNewspaper.current: ", throwingNewspaper.current)
                 // attempt -> paper always above body and transaparent paper with hand??
-                // todo: have zero spinning; stay flat until thrown?
+                // bug fixed: 2nd paper onwards throwing downwards
+                // setLinVel == 0 to overcome velocity from free falling pre throw
+                throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
                 throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-                console.log("currentThrowingPaper: ", currentThrowingPaper)
+                
                 // console.log("paperQuantity: ", paperQuantity)
             }
             
@@ -149,40 +149,63 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             // use pointer location @ release -> -1 to 1
             // TODO: use magnitude of each x and y
             // setThrowing(true)
-            console.log("throwing")
-            console.log(state.pointer)
             // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
             // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
             // calc y from magnitude
             // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
-            console.timeEnd("pointerUp")
 
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
+            setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
-            if (currentThrowingPaper < papersLeft - 2) {
+            /**
+             * below changes throwing newspaper to next in ref array
+             * not actioned when last in ref array -> no further paper mesh to reference
+             */
+            if (currentThrowingPaper < startingNumPapers - 2) {
 
                 throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
-            }
-            setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
 
+                // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
+            }
+            /**
+             * below changes state for current throwing newspaper
+             * unclear if this should be actioned when last in ref array
+             * perhaps set to null after final throw? -> would need checks that not null in throwing logic
+             */
+            setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+        }
+        
+        /**
+         * bug fixed: -3y triggered before paper is thrown
+         * by checking that index is in the thrownIndexArray
+         */
+        if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
+            // if not last index; use current index subtract 1. Otherwise if last index use current index.
+            let diff = currentThrowingPaper - thrownPaperLocations.length
+            let chosenIndex = currentThrowingPaper - diff
+            let currentMesh = paperRefs.current[chosenIndex].current
+            console.log("currentMeshTranslation: ",currentMesh.linvel())
+            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+                if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
+                    // add location to array
+                    let newLocation = currentMesh.translation()
+                    addPaperLocation(newLocation)
+
+                }
         }
     })
 
     function initAim(event) {
+        
         if (thrown) { // not actioned on first go; only after at least 1 has been thrown
-            console.log("update paper location: ", throwingNewspaper.current.translation())
-            // later auto locate when newspaper comes to rest
-            onPaperLocationChange(throwingNewspaper.current.translation()) // how to send location of last paper?
-            // check that linvel is 0
             setThrown(false)
         }
-        console.log("event: ",event)
         if (papersLeft > 0) {
 
             // only if newspapers are left to throw!
@@ -204,6 +227,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     /**
      *     // TODO: sense that paper landed on house tile -> throwing paper before moved again
     // perhaps change thrown with normal paper mesh
+    // each time thrown selected -> add mesh location to array -> if mesh velocity == 0
      */
 
 

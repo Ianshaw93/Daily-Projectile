@@ -1,8 +1,10 @@
 import * as THREE from 'three'
 import { CylinderCollider, Debug, Physics, RigidBody } from '@react-three/rapier'
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
+import useGame from './stores/useGame'
+import { setUserData } from './helperFunctions'
 
 
 THREE.ColorManagement.legacyMode = false
@@ -121,17 +123,27 @@ export function BlockEnd({ position = [ 0, 0, 0 ]}) {
 // TODO: create garden walls -> can only ride on road
 
 // TODO: create stand in houses etc off to both sides
-// unclear: why error with unique key
-export function Property({ position = [ 4, 0, -4 ], id}) {
-    // allow for lefthandside and righthandside
+// mesh1.userData = { needsBoundingBox: true }; // Set custom user data o
+export function Property({ position = [ 4, 0, -4 ]}) {
+    // userData params
+    let isTarget = true
+    let isPlayer = false
+    // perhaps have points per location later?
     return <RigidBody type="fixed">
-                <mesh geometry={ boxGeometry } material={ wallMaterial } position={ position } scale={ [ 4, 0.2, 4 ] }  receiveShadow />
+                <mesh 
+                    geometry={ boxGeometry } 
+                    material={ wallMaterial } 
+                    position={ position } 
+                    scale={ [ 4, 0.2, 4 ] }  
+                    receiveShadow 
+                    userData= {setUserData(isTarget, isPlayer)}
+                />
             </RigidBody>
 
 }
 
 export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ], houseLocations }) {
-
+    const setTargetLocations = useGame((state) => {return state.setTargetLocations})
     const blocks = useMemo(() => {
         const blocks = []
 
@@ -142,23 +154,40 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
         return blocks
     }, [ count ])
 
-    // houseLocations
-    /**
-     * format: both sides depending on count
-     * how to change??
-     */
-    const properties = []
-    for (let i = 0; i < count; i ++) {
-        // one lhs
-        properties.push(
-            // unclear: why id error in console?
-        <Property position = {[ -4, 0, (-4*i -4) ]} key={i}/>
-        )
-        // one rhs
-        properties.push(
-            <Property position = {[ 4, 0, (-4*i -4) ]} key={count + i}/>
+    // useEffect for when thrownPaperLocations changes
+    const properties = useMemo(() => {
+        // possibly include below in useeffect
+        const housePositions = [] // add to useGame
+        const properties = []
+        for (let i = 0; i < count; i ++) {
+            // one lhs
+            let x = -4
+            let y = 0
+            let z = -4*i -4
+            let maxDelta = [2, 0, 2]
+            let centre = [x, y, z] 
+            properties.push(
+            <Property position = {[ x, y, z ]} key={i}/>
             )
-    }
+            housePositions.push({"centre": centre, "maxDelta": maxDelta})
+            // one rhs
+            x = 4
+            y = 0
+            z = -4*i -4
+            centre = [x, y, z] 
+            properties.push(
+                <Property position = {[ x, y, z ]} key={count + i}/>
+                )
+            housePositions.push({"centre": centre, "maxDelta": maxDelta})
+        }
+        setTargetLocations(housePositions)
+
+        return properties
+    }, [count])
+       
+    // console.log("housePositions: ", housePositions)
+    
+    // console.log("properties: ", properties[0].props.position) // hacky way to pass location -> not centre!!
 
     return(
 
