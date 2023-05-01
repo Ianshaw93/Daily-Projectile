@@ -14,6 +14,11 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
     const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
     const addPaperLocation = useGame((state) => state.addPaperLocation)
 
+    // playerModel.scene.children.forEach((mesh) =>
+    // {
+    //     mesh.castShadow = true
+    // })
+
     let startingNumPapers = 6
     /**
      * ref array created for all papers users can throw
@@ -249,6 +254,8 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             castShadow
             onPointerDown={initAim}
             >
+            {/* <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
+
             <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
             <meshStandardMaterial flatShading color="mediumpurple" />
         </mesh>

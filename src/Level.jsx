@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import useGame from './stores/useGame'
 import { setUserData } from './helperFunctions'
+import {House} from './components/House.jsx'
 
 
 THREE.ColorManagement.legacyMode = false
@@ -122,14 +123,17 @@ export function BlockEnd({ position = [ 0, 0, 0 ]}) {
 }
 // TODO: create garden walls -> can only ride on road
 
+
 // TODO: create stand in houses etc off to both sides
 // mesh1.userData = { needsBoundingBox: true }; // Set custom user data o
-export function Property({ position = [ 4, 0, -4 ]}) {
+export function Property({ position }) {
+
     // userData params
     let isTarget = true
     let isPlayer = false
     // perhaps have points per location later?
-    return <RigidBody type="fixed">
+    return (<>
+            <RigidBody type="fixed">
                 <mesh 
                     geometry={ boxGeometry } 
                     material={ wallMaterial } 
@@ -138,12 +142,20 @@ export function Property({ position = [ 4, 0, -4 ]}) {
                     receiveShadow 
                     userData= {setUserData(isTarget, isPlayer)}
                 />
+                {/* insert house on top here */}
+            {/* </RigidBody>
+            <RigidBody> */}
+                <House position={[position[0], position[1] + 0.01, position[2]]} scale={0.1}/>
             </RigidBody>
-
+            </>)
+ 
 }
 
 export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ], houseLocations }) {
+    
     const setTargetLocations = useGame((state) => {return state.setTargetLocations})
+    // create house component -> insert into property
+
     const blocks = useMemo(() => {
         const blocks = []
 
@@ -153,6 +165,8 @@ export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe 
         }
         return blocks
     }, [ count ])
+
+    
 
     // useEffect for when thrownPaperLocations changes
     const properties = useMemo(() => {
