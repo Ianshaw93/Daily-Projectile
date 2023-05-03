@@ -18,7 +18,7 @@ function CanvasComponent(props) {
     }
 
     return (
-        <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef}>
+        <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef} onContextMenu={(e) => e.preventDefault()}>
           <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>
         </Canvas>
       );

@@ -10,18 +10,6 @@ export default function Experience({canvasIsClicked, canvasRef})
 {
     // aim show all paper positions; thrown or not on screen
     //  also show index of current thrown paper
-    const controls = useControls({
-
-    })
-    const [ thrownPaperLocations, setThrownPaperLocations ] = useState([])
-    const [ houseLocations, setHouseLocations ] = useState([])
-
-    function handlePaperLocationChange(position) {
-        setThrownPaperLocations(prev =>  [...prev ,position]);
-    }
-
-
-    
 
     return <>
 
@@ -34,12 +22,10 @@ export default function Experience({canvasIsClicked, canvasRef})
             {/* TODO: send house tile locations */}
             <Level 
                 count = {5}
-                houseLocations={houseLocations}
             />
             <Player 
                 canvasIsClicked={canvasIsClicked} 
                 canvasRef={canvasRef}
-                onPaperLocationChange={handlePaperLocationChange}
             />
         </Physics>
 

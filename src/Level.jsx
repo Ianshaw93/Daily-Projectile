@@ -6,6 +6,7 @@ import { useGLTF } from '@react-three/drei'
 import useGame from './stores/useGame'
 import { setUserData } from './helperFunctions'
 import {House} from './components/House.jsx'
+import { PickupTruck } from './components/PickupTruck.jsx'
 
 
 THREE.ColorManagement.legacyMode = false
@@ -16,7 +17,7 @@ const floor1Material = new THREE.MeshStandardMaterial({ color: 'limegreen' })
 const floor2Material = new THREE.MeshStandardMaterial({ color: 'red' })
 const obstacleMaterial = new THREE.MeshStandardMaterial({ color: 'blue' })
 const wallMaterial = new THREE.MeshStandardMaterial({ color: 'yellow' })
-
+const pickupScale = 0.6
 
 function BlockStart({ position = [ 0, 0, 0 ]}) {
     return <group position={position} >
@@ -45,11 +46,12 @@ export function BlockSpinner({ position = [ 0, 0, 0 ]}) {
         <RigidBody
             type="kinematicPosition"
             ref={obstacleRef}
-            position={[0,0.2,0]}
+            position={[0,-0.125,0]}
             restitution={0.2}
             friction={0}
         >
-            <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [ 3.5, 0.3, 0.3 ] } castShadow />
+            <PickupTruck scale={pickupScale}/>
+            {/* <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [ 3.5, 0.3, 0.3 ] } castShadow /> */}
         </RigidBody>
     
     </group>
@@ -73,11 +75,16 @@ return <group position={position} >
     <RigidBody
         type="kinematicPosition"
         ref={obstacleRef}
-        position={[0,0.2,0]}
+        position={[2,0.2,0]}
         restitution={0.2}
         friction={0}
-    >
-        <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [ 3.5, 0.3, 0.3 ] } castShadow />
+    >   
+    {/* 
+        TODO: have car move only when player is close
+
+    */}
+        <PickupTruck scale={pickupScale} rotation={[0, Math.PI / 2, 0]}/>
+        {/* <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [ 3.5, 0.3, 0.3 ] } castShadow /> */}
     </RigidBody>
 
 </group>
@@ -143,15 +150,13 @@ export function Property({ position }) {
                     userData= {setUserData(isTarget, isPlayer)}
                 />
                 {/* insert house on top here */}
-            {/* </RigidBody>
-            <RigidBody> */}
                 <House position={[position[0], position[1] + 0.01, position[2]]} scale={0.1}/>
             </RigidBody>
             </>)
  
 }
 
-export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ], houseLocations }) {
+export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ]}) {
     
     const setTargetLocations = useGame((state) => {return state.setTargetLocations})
     // create house component -> insert into property

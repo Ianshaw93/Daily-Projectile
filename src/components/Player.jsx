@@ -6,13 +6,17 @@ import * as THREE from "three"
 import useGame from "../stores/useGame";
 
 // isCanvasClicked sent as prop 
-export default function Player({canvasIsClicked, onPaperLocationChange}) {
+export default function Player({canvasIsClicked}) {
     
     // Zustand states and functions
     const papersLeft = useGame((state) => {return state.papersLeft})
     const thrownPaperLocations = useGame((state) => {return state.thrownPaperLocations}) // probably not needed in this component
     const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
     const addPaperLocation = useGame((state) => state.addPaperLocation)
+    const start = useGame((state) => state.start)
+    const restart = useGame((state) => state.restart)
+    const end = useGame((state) => state.end)
+    const resetPapers = useGame((state) => state.resetPapers)
 
     // playerModel.scene.children.forEach((mesh) =>
     // {
@@ -55,15 +59,50 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         
     }
 
+    const reset = () => {
+        // need to reset scores also 
+        restartPlayer() 
+        resetPapers()  
+    }
+    
+    const restartPlayer = () => {
+        playerRef.current.setTranslation({ x: 0, y: 1, z: 0 })
+        playerRef.current.setLinvel({ x: 0, y: 0, z: 0 })
+        playerRef.current.setAngvel({ x: 0, y: 0, z: 0 }) 
+
+    }
+
+    // const resetPapers = () => {
+    //     // recreate array?
+    //     // reset throwing paper to index zero
+    //     // reset score
+    // }
+
+    // TODO: how to have an eventlistener for mouse down here?
     useEffect(() => {
+        const unsubscribeReset = useGame.subscribe(
+            (state) => state.phase,
+            (value) =>
+            {
+                if(value === 'ready')
+                    reset()
+            }
+        )
         // subscribekeys notes when they change state from pressed, to not pressed
         const unsubscribeJump = subscribeKeys((state) => {
             return state.jump
         }, (value) => {
             if(value) {jump()}
         })
+      
+        const unsubscribeKeys = subscribeKeys((state) => {
+            start()
+            // or mouse
+        })
         return () => {
+            unsubscribeReset()
             unsubscribeJump()
+            unsubscribeKeys()
         }
     }, [])
 
@@ -122,6 +161,16 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
 
         state.camera.position.copy(smoothedCameraPositon)
         state.camera.lookAt(smoothedCameraTarget)
+        /**
+         * Phases
+         */
+        if (playerPosition.z < - (5* 4 + 2)) { 
+            end()
+        }
+
+        if (playerPosition.y < - 3) {
+            restart()
+        }
         
         if (aiming && canvasIsClicked) { // aiming
             /**
@@ -134,6 +183,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
                 // bug fixed: 2nd paper onwards throwing downwards
                 // setLinVel == 0 to overcome velocity from free falling pre throw
                 throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
+                throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
                 throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
                 
                 // console.log("paperQuantity: ", paperQuantity)
@@ -187,6 +237,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
         }
         
         /**
+         * bug: linvel null after final paper is thrown
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
          */
@@ -195,7 +246,7 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            console.log("currentMeshTranslation: ",currentMesh.linvel())
+            console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
             console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
@@ -260,9 +311,6 @@ export default function Player({canvasIsClicked, onPaperLocationChange}) {
             <meshStandardMaterial flatShading color="mediumpurple" />
         </mesh>
     </RigidBody>
-     {/*
-        TODO: create bag for papers
-     */}
 
     {Array.from({length: startingNumPapers}, (_, index) => {
         return( ((aiming || thrown) && index <= currentThrowingPaper) ?

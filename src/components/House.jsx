@@ -23,4 +23,4 @@ export function House(props) {
   )
 }
 
-useGLTF.preload('/untitled.glb')
+useGLTF.preload('../models/untitled.glb')
