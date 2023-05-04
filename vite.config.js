@@ -21,5 +21,5 @@ export default {
         emptyOutDir: true,
         sourcemap: true
     },
-    assetsInclude: ['**/*.gltf'],
+    assetsInclude: ['**/*.glb'], // perhaps try glb?
 }
