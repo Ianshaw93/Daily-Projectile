@@ -11,7 +11,7 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 // const path = '../models/low_poly_american_pickup_truck.glb'
-const path = '../low_poly_american_pickup_truck.glb'
+const path = 'public/models/low_poly_american_pickup_truck.glb'
 export function PickupTruck(props) {
   const { nodes, materials } = useGLTF(path)
   return (
