@@ -10,8 +10,10 @@ Title: Low Poly American Pickup Truck
 import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
+// const path = '../models/low_poly_american_pickup_truck.glb'
+const path = '../low_poly_american_pickup_truck.glb'
 export function PickupTruck(props) {
-  const { nodes, materials } = useGLTF('../models/low_poly_american_pickup_truck.glb')
+  const { nodes, materials } = useGLTF(path)
   return (
     <group {...props} dispose={null}>
       <group position={[1.52, 0.93, -0.11]} scale={1.41}>
@@ -47,4 +49,4 @@ export function PickupTruck(props) {
   )
 }
 
-useGLTF.preload('../models/low_poly_american_pickup_truck.glb')
+useGLTF.preload(path)

@@ -6,8 +6,10 @@ Command: npx gltfjsx@6.1.4 untitled.glb
 import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 // src\assets\untitled.glb
+// const path = '../models/untitled.glb'
+const path = '../untitled.glb'
 export function House(props) {
-  const { nodes, materials } = useGLTF('../models/untitled.glb')
+  const { nodes, materials } = useGLTF(path)
   return (
     <group {...props} dispose={null}>
       <group rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
@@ -23,4 +25,4 @@ export function House(props) {
   )
 }
 
-useGLTF.preload('../models/untitled.glb')
+useGLTF.preload(path)
