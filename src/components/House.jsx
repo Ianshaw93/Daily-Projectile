@@ -8,7 +8,7 @@ import { useGLTF } from '@react-three/drei'
 // src\assets\untitled.glb
 // const path = '../models/untitled.glb'
 // public\models\low_poly_american_pickup_truck.glb
-const path = 'public/models/untitled.glb'
+const path = 'models/untitled.glb'
 export function House(props) {
   const { nodes, materials } = useGLTF(path)
   return (
