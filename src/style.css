@@ -58,3 +58,78 @@ body,
     padding-bottom: 5px; 
     text-align: center;  
 }
+
+/* papersDelivered */
+.papersDeliveredEnd
+{
+    position: absolute;
+    top: 0%;
+    right: 5%;
+    /* width: 100%; */
+    color: white;
+    background: #00000033;
+    font-size: 6vh;
+    padding-bottom: 5px; 
+    text-align: center;  
+}
+
+/* Time */
+.time
+{
+    position: absolute;
+    top: 0%;
+    left: 5%;
+    /* width: 100%; */
+    color: white;
+    background: #00000033;
+    font-size: 6vh;
+    padding-bottom: 5px; 
+    text-align: center;  
+}
+
+/**
+ * Restart
+ */
+ .restart
+ {
+     display: flex;
+     justify-content: center;
+     position: absolute;
+     top: 40%;
+     left: 0;
+     width: 100%;
+     color: #ffffff;
+     font-size: 80px;
+     background: #00000033;
+     padding-top: 10px;
+     pointer-events: auto;
+     cursor: pointer;
+ }
+
+ /**
+ * end screen menu
+ */
+ .endScreen
+ {
+     /* display: flex; */
+     justify-content: center;
+     position: absolute;
+     top: 20%;
+     left: 0;
+     width: 100%;
+     color: #ffffff;
+     font-size: 80px;
+     background: #00000033;
+     padding-top: 10px;
+     pointer-events: auto;
+     cursor: pointer;
+     justify-content: space-between;
+ }
+
+ .row {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }

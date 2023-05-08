@@ -6,13 +6,17 @@ export default function Interface() {
     const papersLeft = useGame((state) => {return state.papersLeft}) 
     const startingNumPapers = useGame((state) => {return state.startingNumPapers}) 
     const papersDelivered = useGame((state) => state.papersDelivered) 
+    const phase = useGame((state) => state.phase)
+    const restart = useGame((state) => state.restart)
+    
     let pDelivered = 0
     const deliveredRef = useRef()
+    const timeRef1 = useRef()
+    const timeRef2 = useRef()
 
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
             const state = useGame.getState()
-            console.log(state)
 
             let elapsedTime = 0
             if (state.phase === 'playing') {
@@ -24,9 +28,12 @@ export default function Interface() {
             elapsedTime /= 1000
             elapsedTime = elapsedTime.toFixed(2)
 
-            // if (time.current) {
-            //     time.current.textContent = elapsedTime
-            // }
+            if (timeRef1.current) {
+                timeRef1.current.textContent = "⏱️" + elapsedTime
+            }
+            if (timeRef2.current) {
+                timeRef2.current.textContent = "⏱️" + elapsedTime
+            }
             /**
              * bug delivered resetting from zero back to previous total
              * for mvp reset location only not papers thrown allow refresh restart
@@ -55,11 +62,25 @@ export default function Interface() {
     }
     /**
      * issue -> this component is outside of React
+     * TODO: have different screen for end of level
+     * 
      */
     console.log("delivered", papersDelivered)
     return (<div className="interface">
+        <div ref={timeRef1} className="time"></div>
+        <div className="papersDelivered">📰 <span ref={deliveredRef}>{pDelivered}</span>/ {startingNumPapers} </div>
+
+        { phase === 'ended' && (<>
+        <div className="endScreen">
+        <div className="row">📰 <span ref={deliveredRef}>{pDelivered}</span>/ {startingNumPapers}</div>
+        <div ref={timeRef2} className="row"></div>
+        <div className="row" onClick={ restart }>Restart</div>
+        </div>
+        </>
+        
+        ) }
+
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
-        <div className="papersDelivered">📰 <span ref={deliveredRef}>{pDelivered}</span>/ {startingNumPapers} </div>
     </div>)
 }

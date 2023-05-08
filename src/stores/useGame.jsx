@@ -5,11 +5,12 @@ import { checkIfOnTarget } from "../hooks/onTarget";
 
 export default create(subscribeWithSelector((set) => {
     return {
-        startingNumPapers: 6,
+        startingNumPapers: 6, // will need object for each level
         papersLeft: 6,
         papersDelivered: 0, // use onTarget
         thrownPaperLocations: [],
-        targetLocations: [], 
+        targetLocations: [],
+        thrownIndexArray: [], 
 
         /**
          * Time
@@ -29,17 +30,19 @@ export default create(subscribeWithSelector((set) => {
                 
             })
         },
+        // why is restart not actioned from interface??
         restart: () => { // perhaps also have reset/respawn -> maintain score and respawn
             console.log("restart")
             set((state) => {
-                if (state.phase==='playing')
+                if (state.phase==='playing' || state.phase == 'ended')
                     return { phase: 'ready'}            
                 return {}
             })
         },
         end: () => {
             set((state) => {
-                if (state.phase==='playing' || state.phase ==='ended')
+                if (state.phase==='playing'){console.log("end")}
+                if (state.phase==='playing')
                     return { phase: 'ended', endTime: Date.now() }
                 return {}
             })
@@ -56,18 +59,11 @@ export default create(subscribeWithSelector((set) => {
         },
 
         resetPapers: () => {
-            // reset papersLeft startingNumPapers
-            set((state) => {
-                return { papersLeft: state.startingNumPapers}
-            })
-            // reset paperLocations
+
             set(() => {
-                return { thrownPaperLocations: [] }
+                return { thrownPaperLocations: [], papersLeft: state.startingNumPapers, papersDelivered: 0, thrownIndexArray: [] }
             })
-            // unclear why this resets to previous value
-            set(() => {
-                return { papersDelivered: 0 }
-            })
+
             return {}
         },
         
@@ -93,6 +89,13 @@ export default create(subscribeWithSelector((set) => {
                 return{}
 
             })
+        },
+
+        addThrownPaperIndex: (newIndex) => {
+            console.log("newIndex: ", newIndex)
+            set((state) => ({
+                thrownIndexArray: [...state.thrownIndexArray, newIndex]
+            }))
         },
 
         setTargetLocations: (locationArray) => {

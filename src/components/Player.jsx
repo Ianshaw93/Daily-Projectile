@@ -44,7 +44,9 @@ export default function Player({canvasIsClicked}) {
     const [ aiming, setAiming ] = useState(false)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
-    const [thrownIndexArray, setThrownIndexArray] = useState([])
+    const thrownIndexArray = useGame((state) => state.thrownIndexArray)
+    const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
+    // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
 
     const jump = () => {
 
@@ -106,8 +108,6 @@ export default function Player({canvasIsClicked}) {
         }
     }, [])
 
-    console.log("thrown indexes: ", thrownIndexArray)
-
     useFrame((state, delta) => {
         const { forward, backward, leftward, rightward} = getKeys()
 
@@ -167,7 +167,7 @@ export default function Player({canvasIsClicked}) {
         if (playerPosition.z < - (5* 4 + 2)) { 
             end()
         }
-
+        // Later respawn if y < -3
         if (playerPosition.y < - 3) {
             restart()
         }
@@ -213,7 +213,8 @@ export default function Player({canvasIsClicked}) {
 
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
-            setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
+            addThrownPaperIndex(currentThrowingPaper)
+            // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
@@ -246,8 +247,8 @@ export default function Player({canvasIsClicked}) {
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
+            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
@@ -311,7 +312,7 @@ export default function Player({canvasIsClicked}) {
             <meshStandardMaterial flatShading color="mediumpurple" />
         </mesh>
     </RigidBody>
-
+    {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
         return( ((aiming || thrown) && index <= currentThrowingPaper) ?
         <RigidBody
@@ -326,10 +327,7 @@ export default function Player({canvasIsClicked}) {
             key={index}
         >
             <mesh castShadow>
-            <>
-        <boxGeometry args={ [ 0.03, 0.1, 0.5 ] } />
-        <meshStandardMaterial flatShading color="white" />        
-            </>
+            {newspaperShell}
             </mesh>
         </RigidBody> : null
         )       
