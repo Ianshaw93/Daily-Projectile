@@ -41,6 +41,7 @@ export default function Interface() {
              */
             pDelivered = state.papersDelivered
 
+
         })
 
         return () => {
@@ -66,12 +67,17 @@ export default function Interface() {
      */
     console.log("delivered", papersDelivered)
     return (<div className="interface">
+        {phase != 'ended' && (<>
         <div ref={timeRef1} className="time"></div>
         <div className="papersDelivered">📰 <span ref={deliveredRef}>{papersDelivered}</span>/ {startingNumPapers} </div>
+        <div className="papersLeft">{papers}</div>
+        <div className="crossOverlayPapersLeft">{crosses}</div>
+        </>
+        )}
 
         { phase === 'ended' && (<>
         <div className="endScreen">
-        <div className="row">📰 <span ref={deliveredRef}>{pDelivered}</span>/ {startingNumPapers}</div>
+        <div className="row">📰 <span ref={deliveredRef}>{papersDelivered}</span>/ {startingNumPapers}</div>
         <div ref={timeRef2} className="row"></div>
         <div className="row" onClick={ restart }>Restart</div>
         </div>
@@ -79,7 +85,5 @@ export default function Interface() {
         
         ) }
 
-        <div className="papersLeft">{papers}</div>
-        <div className="crossOverlayPapersLeft">{crosses}</div>
     </div>)
 }
