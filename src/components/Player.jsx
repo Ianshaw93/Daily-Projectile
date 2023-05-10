@@ -162,7 +162,7 @@ export default function Player({canvasIsClicked}) {
         cameraPosition.z += 2.5}
         else {
             // get difference between player centre and position
-            cameraPosition.x = state.pointer.x
+            cameraPosition.x += state.pointer.x
             cameraPosition.z += Math.sqrt(Math.pow(2.5, 2) - Math.pow(state.pointer.x, 2))
             // if aiming true -> go on circular arc
 

@@ -6,8 +6,6 @@ import Player from './components/Player'
 // click events on canvas as props; send to player
 export default function Experience({canvasIsClicked, canvasRef})
 {
-
-
     return <>
         <Physics>
             {/* <Debug /> */}
