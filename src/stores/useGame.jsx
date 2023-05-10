@@ -8,6 +8,7 @@ export default create(subscribeWithSelector((set) => {
         startingNumPapers: 6, // will need object for each level
         papersLeft: 6,
         papersDelivered: 0, // use onTarget
+        currentThrowingPaper: 0,
         thrownPaperLocations: [],
         targetLocations: [],
         thrownIndexArray: [], 
@@ -59,8 +60,8 @@ export default create(subscribeWithSelector((set) => {
         },
 
         resetPapers: () => {
-
-            set(() => {
+            // current throwing newspaper needs to reset to zero also
+            set((state) => {
                 return { thrownPaperLocations: [], papersLeft: state.startingNumPapers, papersDelivered: 0, thrownIndexArray: [] }
             })
 
@@ -68,13 +69,13 @@ export default create(subscribeWithSelector((set) => {
         },
         
         addPaperLocation: (newLocation) => {
-            console.log("useGame addLocation: ", newLocation)
             
             set((state) => ({
                 thrownPaperLocations: [...state.thrownPaperLocations, newLocation]
                 
             }))
             
+            console.log("useGame addLocation: ", newLocation)
             
             /** 
              * check location of thrown paper against property/houses locations
@@ -91,11 +92,16 @@ export default create(subscribeWithSelector((set) => {
             })
         },
 
+
         addThrownPaperIndex: (newIndex) => {
-            console.log("newIndex: ", newIndex)
+            // console.log("newIndex: ", newIndex, (newIndex < startingNumPapers - 2) ? currentThrowingPaper + 1: currentThrowingPaper )
             set((state) => ({
-                thrownIndexArray: [...state.thrownIndexArray, newIndex]
+                thrownIndexArray: [...state.thrownIndexArray, newIndex],
+                currentThrowingPaper: (newIndex < state.startingNumPapers - 2) ? state.currentThrowingPaper + 1: state.currentThrowingPaper 
             }))
+            return{}
+
+
         },
 
         setTargetLocations: (locationArray) => {

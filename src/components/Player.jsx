@@ -30,14 +30,15 @@ export default function Player({canvasIsClicked}) {
      * perhaps add to thrown state array -> check that current has been thrown
      */
     const paperRefs = useRef(Array.from({length: startingNumPapers}, () => createRef()))
-    const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(0)
+    // const [ currentThrowingPaper, setCurrentThrowingPaper ] = useState(0)
+    const currentThrowingPaper = useGame((state) => state.currentThrowingPaper)
 
     const playerRef = useRef()
     const bodyMesh = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
-    const { rapier, world } = useRapier()
+    const { rapier, world, step } = useRapier()
     const rapierWorld = world.raw()
     const [ smoothedCameraPositon ] = useState(() => new THREE.Vector3(10, 10, 10))
     const [ smoothedCameraTarget ] = useState(() => new THREE.Vector3())
@@ -109,6 +110,8 @@ export default function Player({canvasIsClicked}) {
     }, [])
 
     useFrame((state, delta) => {
+
+
         const { forward, backward, leftward, rightward} = getKeys()
 
         const impulse = { x:0, y:0, z:0 }
@@ -234,7 +237,8 @@ export default function Player({canvasIsClicked}) {
              * unclear if this should be actioned when last in ref array
              * perhaps set to null after final throw? -> would need checks that not null in throwing logic
              */
-            setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+            // should be from global state -> to allow reset to zero
+            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
         }
         
         /**
@@ -242,13 +246,15 @@ export default function Player({canvasIsClicked}) {
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
          */
+        // console.log("currentThrowingPaper: ", currentThrowingPaper, thrownPaperLocations)
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
+            console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
+            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()

@@ -13,6 +13,7 @@ export default function Interface() {
     const deliveredRef = useRef()
     const timeRef1 = useRef()
     const timeRef2 = useRef()
+    console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
 
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
@@ -39,9 +40,7 @@ export default function Interface() {
              * for mvp reset location only not papers thrown allow refresh restart
              */
             pDelivered = state.papersDelivered
-            if (deliveredRef.current) {
-                deliveredRef.current.textContent = pDelivered
-            }
+
         })
 
         return () => {
@@ -68,7 +67,7 @@ export default function Interface() {
     console.log("delivered", papersDelivered)
     return (<div className="interface">
         <div ref={timeRef1} className="time"></div>
-        <div className="papersDelivered">📰 <span ref={deliveredRef}>{pDelivered}</span>/ {startingNumPapers} </div>
+        <div className="papersDelivered">📰 <span ref={deliveredRef}>{papersDelivered}</span>/ {startingNumPapers} </div>
 
         { phase === 'ended' && (<>
         <div className="endScreen">
