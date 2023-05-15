@@ -70,13 +70,16 @@ export default create(subscribeWithSelector((set) => {
         
         addPaperLocation: (newLocation) => {
             
-            set((state) => ({
-                thrownPaperLocations: [...state.thrownPaperLocations, newLocation]
-                
-            }))
-            
             console.log("useGame addLocation: ", newLocation)
             
+            // bug: location not added -> moved to own function
+            set((state) => ({
+                thrownPaperLocations: [...state.thrownPaperLocations, newLocation]
+            }))
+            return{}
+        },
+        
+        checkIfPaperOnTarget: (newLocation) => {
             /** 
              * check location of thrown paper against property/houses locations
              * if on property add to papersDelivered 
@@ -84,12 +87,13 @@ export default create(subscribeWithSelector((set) => {
              *  */ 
             set((state) => {                
                 if (checkIfOnTarget(newLocation, state.targetLocations)) {
-                // if so add to papers delivered
+                    // if so add to papers delivered
                     return { papersDelivered: state.papersDelivered + 1}
                 }
                 return{}
-
+                
             })
+            
         },
 
 

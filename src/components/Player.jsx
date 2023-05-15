@@ -4,6 +4,7 @@ import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
+import {Scooter} from '../components/Scooter'
 
 // isCanvasClicked sent as prop 
 // TODO: perhaps double click for go forward tap to sides to switch lanes
@@ -15,6 +16,8 @@ export default function Player({canvasIsClicked}) {
     const thrownPaperLocations = useGame((state) => {return state.thrownPaperLocations}) // probably not needed in this component
     const subtractPaperLeft = useGame((state) => state.subtractPaperLeft)
     const addPaperLocation = useGame((state) => state.addPaperLocation)
+    // trial splitting addPaperLocation into two
+    const checkIfPaperOnTarget = useGame((state) => state.checkIfPaperOnTarget)
     const start = useGame((state) => state.start)
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
@@ -24,7 +27,6 @@ export default function Player({canvasIsClicked}) {
     // {
     //     mesh.castShadow = true
     // })
-
     let startingNumPapers = 6
     /**
      * ref array created for all papers users can throw
@@ -146,7 +148,15 @@ export default function Player({canvasIsClicked}) {
          * Camera
          */
         const playerPosition = playerRef.current.translation()
+        
+        // below not working?
 
+        playerRef.current.setAngvel({ x: 0, y: 0, z: 0 }) 
+        playerRef.current.setRotation({ _x: 0, _y: 0, _z: 0, _w: 1 })
+        // playerRef.current.lockRotations()
+        
+        // console.log(playerRef.current.rotation())
+        
         // array of previous and current positions
         // find difference in the vectors
         // below was trial and error to get the newspaper to follow the player 
@@ -177,9 +187,11 @@ export default function Player({canvasIsClicked}) {
 
         state.camera.position.copy(smoothedCameraPositon)
         state.camera.lookAt(smoothedCameraTarget)
+
         /**
          * Phases
          */
+
         if (playerPosition.z < - (5* 4 + 2)) { 
             end()
         }
@@ -216,35 +228,39 @@ export default function Player({canvasIsClicked}) {
 
         }
         // throwing when pointer lifted
-        if (aiming && !canvasIsClicked && throwingNewspaper.current) {
+        if (aiming && !canvasIsClicked && throwingNewspaper.current && !thrown) {
+            // bug -> this is getting hit multiple times per throw!!
+            // add in len(thrownArray) == throwing index
+
+
+            setAiming(false)
+            setThrown(true)
             // use pointer location @ release -> -1 to 1
-            // TODO: use magnitude of each x and y
-            // setThrowing(true)
-            // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
-            // calc y from magnitude
-            // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
 
             throwingNewspaper.current.applyImpulse(impulse)
-            setThrown(true)
-            addThrownPaperIndex(currentThrowingPaper)
-            // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
-            setAiming(false)
-            // below should be actioned on aiming but returned to pile if not thrown
-            // setPaperQuantity((current) => current - 1)
-            subtractPaperLeft()
+
+            // should only be actioned once!!
+            console.log("currentThrowingPaper", currentThrowingPaper, thrownIndexArray)
+            /**
+             * need if statement or guard against multiple
+             */
             /**
              * below changes throwing newspaper to next in ref array
              * not actioned when last in ref array -> no further paper mesh to reference
-             */
-            if (currentThrowingPaper < startingNumPapers - 2) {
-
-                throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
-
-                // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
+            */
+           if (currentThrowingPaper < startingNumPapers - 2) {
+               
+               throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
+               console.log("currentThrowingPaper + 1: ", currentThrowingPaper + 1)
+               // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
             }
+            addThrownPaperIndex(currentThrowingPaper) // adds current index to thrownIndexArray and moves currentThrowingPaper + 1 if not last index
+            // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
+            // below should be actioned on aiming but returned to pile if not thrown
+            // setPaperQuantity((current) => current - 1)
+            subtractPaperLeft()
             /**
              * below changes state for current throwing newspaper
              * unclear if this should be actioned when last in ref array
@@ -252,8 +268,9 @@ export default function Player({canvasIsClicked}) {
              */
             // should be from global state -> to allow reset to zero
             // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+
         }
-        
+        console.log("thrownIndexArray: ", thrownIndexArray)
         /**
          * bug: linvel null after final paper is thrown
          * bug fixed: -3y triggered before paper is thrown
@@ -265,12 +282,13 @@ export default function Player({canvasIsClicked}) {
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
+            console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations, diff, chosenIndex)
             console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
             console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
+                    checkIfPaperOnTarget(newLocation)
                     addPaperLocation(newLocation)
 
                 }
@@ -317,6 +335,7 @@ export default function Player({canvasIsClicked}) {
         angularDamping={ 0.5 }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
+        // colliders={false}
         >
         {/* TODO: allow click and drag to set and aim for throw; release for throw */}
         {/* Later: click area should be near character, allow from not on character later */}
@@ -325,11 +344,20 @@ export default function Player({canvasIsClicked}) {
             castShadow
             onPointerDown={initAim}
             >
-            {/* <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
 
             <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
             <meshStandardMaterial flatShading color="mediumpurple" />
         </mesh>
+        {/* <CuboidCollider args={[0.2, 0.1, 0.2]} />
+        <Scooter 
+            ref={ bodyMesh } 
+            castShadow
+            onPointerDown={initAim}  
+            rotation={[0, -Math.PI / 2, 0]} 
+            scale={0.5}
+            lockRotations={true}
+                     
+        /> */}
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {

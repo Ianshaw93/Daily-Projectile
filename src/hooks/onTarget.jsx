@@ -19,7 +19,7 @@ export function checkIfOnTarget(paperLocation, targetLocations) {
                                 paperLocation.y-currentCentre[1], 
                                 paperLocation.z-currentCentre[2]
                               ]
-      console.log("currentVectorDelta: ", currentVectorDelta, currentMaxDelta)
+      // console.log("currentVectorDelta: ", currentVectorDelta, currentMaxDelta)
       /**
        * check that paper location is on any target area
        * check that y delta not goofing it
