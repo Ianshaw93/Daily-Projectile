@@ -153,8 +153,18 @@ export default function Player({canvasIsClicked}) {
 
         const cameraPosition = new THREE.Vector3()
         cameraPosition.copy(playerPosition)
-        cameraPosition.z += 2.5
+        // y position constant (height above player)
         cameraPosition.y += 0.9
+        // below only if aiming not true
+        if (!aiming) {
+        cameraPosition.z += 2.5}
+        else {
+            // get difference between player centre and position
+            cameraPosition.x += state.pointer.x
+            cameraPosition.z += Math.sqrt(Math.pow(2.5, 2) - Math.pow(state.pointer.x, 2))
+            // if aiming true -> go on circular arc
+
+        }
         
         const cameraTarget = new THREE.Vector3()
         cameraTarget.copy(playerPosition)

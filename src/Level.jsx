@@ -156,6 +156,10 @@ export function Property({ position }) {
  
 }
 
+/**
+ * TODO: have separate parameters for different levels
+ * have demo mode
+ */
 export function Level({ count = 5, types = [ BlockSpinner, BlockLimbo, BlockAxe ]}) {
     
     const setTargetLocations = useGame((state) => {return state.setTargetLocations})
