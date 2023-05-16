@@ -156,6 +156,11 @@ export default function Player({canvasIsClicked}) {
         // y position constant (height above player)
         cameraPosition.y += 0.9
         // below only if aiming not true
+        // if newspaper just thrown
+        // if (thrown && !aiming && thrownIndexArray.length && paperRefs.current[thrownIndexArray[-1]]) {
+
+        // }
+        // else 
         if (!aiming) {
         cameraPosition.z += 2.5}
         else {
@@ -167,7 +172,13 @@ export default function Player({canvasIsClicked}) {
         }
         
         const cameraTarget = new THREE.Vector3()
-        cameraTarget.copy(playerPosition)
+        if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
+            console.log("aim released", paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]], thrownIndexArray[-1])
+            cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
+        } else {
+
+            cameraTarget.copy(playerPosition)
+        }
 
         smoothedCameraPositon.lerp(cameraPosition, 5 * delta)
         smoothedCameraTarget.lerp(cameraTarget, 5 * delta)
@@ -191,7 +202,6 @@ export default function Player({canvasIsClicked}) {
             */
            
            if(!thrown && throwingNewspaper.current){
-                console.log("throwingNewspaper.current: ", throwingNewspaper.current)
                 // attempt -> paper always above body and transaparent paper with hand??
                 // bug fixed: 2nd paper onwards throwing downwards
                 // setLinVel == 0 to overcome velocity from free falling pre throw
@@ -262,9 +272,9 @@ export default function Player({canvasIsClicked}) {
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
-            console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            // console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
+            // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
+            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
