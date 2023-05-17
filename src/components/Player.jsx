@@ -153,9 +153,9 @@ export default function Player({canvasIsClicked}) {
 
         playerRef.current.setAngvel({ x: 0, y: 0, z: 0 }) 
         playerRef.current.setRotation({ _x: 0, _y: 0, _z: 0, _w: 1 })
-        // playerRef.current.lockRotations()
+        playerRef.current.lockRotations()
         
-        // console.log(playerRef.current.rotation())
+        console.log(playerRef.current.rotation())
         
         // array of previous and current positions
         // find difference in the vectors
@@ -327,6 +327,8 @@ export default function Player({canvasIsClicked}) {
 
     return <>
 
+    {/* TODO: allow click and drag to set and aim for throw; release for throw */}
+    {/* Later: click area should be near character, allow from not on character later */}
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }
@@ -335,20 +337,8 @@ export default function Player({canvasIsClicked}) {
         angularDamping={ 0.5 }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
-        // colliders={false}
         >
-        {/* TODO: allow click and drag to set and aim for throw; release for throw */}
-        {/* Later: click area should be near character, allow from not on character later */}
-        <mesh
-            ref={ bodyMesh } 
-            castShadow
-            onPointerDown={initAim}
-            >
-
-            <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
-            <meshStandardMaterial flatShading color="mediumpurple" />
-        </mesh>
-        {/* <CuboidCollider args={[0.2, 0.1, 0.2]} />
+        <CuboidCollider args={[0.2, 0.1, 0.2]} />
         <Scooter 
             ref={ bodyMesh } 
             castShadow
@@ -356,8 +346,17 @@ export default function Player({canvasIsClicked}) {
             rotation={[0, -Math.PI / 2, 0]} 
             scale={0.5}
             lockRotations={true}
-                     
-        /> */}
+            
+            />
+            {/* <mesh
+                ref={ bodyMesh } 
+                castShadow
+                onPointerDown={initAim}
+                >
+    
+                <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
+                <meshStandardMaterial flatShading color="mediumpurple" />
+            </mesh> */}
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
