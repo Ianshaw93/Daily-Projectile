@@ -208,7 +208,8 @@ export default function Player({canvasIsClicked}) {
                 throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
                 throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
                 throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-                
+                // add arrow in direction of aiming -> change size and direction with pointer position
+
                 // console.log("paperQuantity: ", paperQuantity)
             }
             
@@ -307,6 +308,8 @@ export default function Player({canvasIsClicked}) {
     </>
     )
 
+    
+
     /**
      *     // TODO: sense that paper landed on house tile -> throwing paper before moved again
     // perhaps change thrown with normal paper mesh
@@ -336,6 +339,9 @@ export default function Player({canvasIsClicked}) {
 
             <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
             <meshStandardMaterial flatShading color="mediumpurple" />
+
+            {/* <arrowHelper args={}/>  */}
+            {/* args={[dir, origin, length, hex, headLength, headWidth]} */}
         </mesh>
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
