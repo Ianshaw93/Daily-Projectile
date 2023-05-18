@@ -173,7 +173,6 @@ export default function Player({canvasIsClicked}) {
         
         const cameraTarget = new THREE.Vector3()
         if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
-            console.log("aim released", paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]], thrownIndexArray[-1])
             cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
         } else {
 
@@ -266,7 +265,12 @@ export default function Player({canvasIsClicked}) {
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
          */
-        // console.log("currentThrowingPaper: ", currentThrowingPaper, thrownPaperLocations)
+        console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
+        console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
+        console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
+        console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
+        console.groupEnd()
+
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
             let diff = currentThrowingPaper - thrownPaperLocations.length
@@ -274,7 +278,7 @@ export default function Player({canvasIsClicked}) {
             let currentMesh = paperRefs.current[chosenIndex].current
             // console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
             // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
