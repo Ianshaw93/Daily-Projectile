@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import useGame from "./stores/useGame"
 import { addEffect } from "@react-three/fiber"
 
@@ -14,6 +14,11 @@ export default function Interface() {
     const timeRef1 = useRef()
     const timeRef2 = useRef()
     console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
+    // arrow logic below
+    const arrowRef = useRef()
+    const startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [mousePos, setMousePos] = useState({...startPos});
 
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
@@ -43,10 +48,47 @@ export default function Interface() {
 
         })
 
+        const handleMouseMove = (event) => {
+            setMousePos({x: event.clientX, y: event.clientY})
+        }
+        window.addEventListener('mousemove', handleMouseMove)
+
         return () => {
             unsubscribeEffect()
+            window.removeEventListener('mousemove', handleMouseMove)
         }
     } ,[])
+    /**
+     * logic for html arrow sizing
+     * later move to own component
+     */
+
+    useEffect(() => {
+        console.log("mouse moved")
+        const arrow = arrowRef.current;
+        if (arrow) {
+          const dx = mousePos.x - startPos.x;
+          const dy = mousePos.y - startPos.y;
+          const angle = Math.atan2(dy, dx);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+    
+          if (!isMouseDown) {
+            arrow.style.transform = `
+              translate(${startPos.x}px, ${startPos.y}px)
+              rotate(${angle}rad)
+              scaleX(${dist / 100})
+              scaleY(${dist / 100})
+            `;
+          } else {
+            arrow.style.transform = `
+              translate(${startPos.x}px, ${startPos.y}px)
+              rotate(0rad)
+              scaleX(1)
+            `;
+          }
+        }
+      }, [mousePos]);
+
 
     let papersThrown = startingNumPapers - papersLeft
     // cross emojis
@@ -65,6 +107,9 @@ export default function Interface() {
      * 
      */
     console.log("delivered", papersDelivered)
+  
+
+
     return (<div className="interface">
         <div ref={timeRef1} className="time"></div>
         <div className="papersDelivered">📰 <span ref={deliveredRef}>{papersDelivered}</span>/ {startingNumPapers} </div>
@@ -78,6 +123,19 @@ export default function Interface() {
         </>
         
         ) }
+        <div className="arrow" >
+            <img
+                ref={arrowRef}
+                src = "black-arrow.png"
+                style={{
+                    transform: `translate(50%, 50%)`,
+                    height: `100px`,
+                    width: `100px)`,
+                    transformOrigin: `top-center`,
+                    scale: '1',
+                  }}
+            />
+        </div>
 
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
