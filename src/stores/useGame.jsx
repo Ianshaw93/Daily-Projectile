@@ -11,7 +11,9 @@ export default create(subscribeWithSelector((set) => {
         currentThrowingPaper: 0,
         thrownPaperLocations: [],
         targetLocations: [],
-        thrownIndexArray: [], 
+        thrownIndexArray: [],
+        isAiming: false,
+        playerScreenLocation: {}, 
 
         /**
          * Time
@@ -107,6 +109,18 @@ export default create(subscribeWithSelector((set) => {
         setTargetLocations: (locationArray) => {
             set(() => ({
                 targetLocations: locationArray
+            }))
+        },
+
+        setIsAiming: (newState) => {
+            set(() => ({
+                isAiming: newState
+            }))
+        },
+
+        setPlayerScreenLocation: (newState) => {
+            set(() => ({
+                playerScreenLocation: newState
             }))
         }
 

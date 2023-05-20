@@ -1,5 +1,5 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
@@ -17,6 +17,7 @@ export default function Player({canvasIsClicked}) {
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
+    const setPlayerScreenLocation = useGame((state) => state.setPlayerScreenLocation)
 
     // playerModel.scene.children.forEach((mesh) =>
     // {
@@ -42,13 +43,17 @@ export default function Player({canvasIsClicked}) {
     const rapierWorld = world.raw()
     const [ smoothedCameraPositon ] = useState(() => new THREE.Vector3(10, 10, 10))
     const [ smoothedCameraTarget ] = useState(() => new THREE.Vector3())
-    const [ aiming, setAiming ] = useState(false)
+    // const [ aiming, setAiming ] = useState(false)
+    const isAiming = useGame((state) => state.isAiming)
+    const setIsAiming = useGame((state) => state.setIsAiming)
     const [ pointLocation, setPointLocation ] = useState(0)
     const [ thrown, setThrown ] = useState(false)
     const thrownIndexArray = useGame((state) => state.thrownIndexArray)
     const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
     // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
+    const { viewport } = useThree();
 
+    const { width, height } = viewport;
     const jump = () => {
 
         const origin = playerRef.current.translation()
@@ -145,6 +150,7 @@ export default function Player({canvasIsClicked}) {
          */
         const playerPosition = playerRef.current.translation()
 
+
         // array of previous and current positions
         // find difference in the vectors
         // below was trial and error to get the newspaper to follow the player 
@@ -161,7 +167,7 @@ export default function Player({canvasIsClicked}) {
 
         // }
         // else 
-        if (!aiming) {
+        if (!isAiming) {
         cameraPosition.z += 2.5}
         else {
             // get difference between player centre and position
@@ -172,7 +178,7 @@ export default function Player({canvasIsClicked}) {
         }
         
         const cameraTarget = new THREE.Vector3()
-        if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
+        if (thrown && !isAiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1 && paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation().y > -0.1) {
             console.log("aim released", paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]], thrownIndexArray[-1])
             cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
         } else {
@@ -185,6 +191,23 @@ export default function Player({canvasIsClicked}) {
 
         state.camera.position.copy(smoothedCameraPositon)
         state.camera.lookAt(smoothedCameraTarget)
+
+        // project playerPosition to screen position
+        // Create new vector
+        const projVec = new THREE.Vector3();
+
+        // Copy the object's position into new vector
+        projVec.copy(playerRef.current.translation());
+        // Perform projection on NEW vector
+        projVec.project(state.camera);
+
+
+        const projVec2 = {
+            x: (projVec.x + 1) * width / 2, 
+            y: (-projVec.y + 1) * height / 2
+        }
+        setPlayerScreenLocation(projVec2)
+
         /**
          * Phases
          */
@@ -196,7 +219,7 @@ export default function Player({canvasIsClicked}) {
             restart()
         }
         
-        if (aiming && canvasIsClicked) { // aiming
+        if (isAiming && canvasIsClicked) { // aiming
             /**
              * moves paper before throw is actioned on mouse up
             */
@@ -224,7 +247,7 @@ export default function Player({canvasIsClicked}) {
 
         }
         // throwing when pointer lifted
-        if (aiming && !canvasIsClicked && throwingNewspaper.current) {
+        if (isAiming && !canvasIsClicked && throwingNewspaper.current) {
             // use pointer location @ release -> -1 to 1
             // TODO: use magnitude of each x and y
             // setThrowing(true)
@@ -239,7 +262,8 @@ export default function Player({canvasIsClicked}) {
             setThrown(true)
             addThrownPaperIndex(currentThrowingPaper)
             // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
-            setAiming(false)
+            // setAiming(false)
+            setIsAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -296,7 +320,9 @@ export default function Player({canvasIsClicked}) {
             // Done: have object in place of newspaper - > cube for now
             // TODO: allow for drag of mouse -> distance of drag more force
             setPointLocation(event.point)
-            setAiming(true)
+            // setAiming(true)
+            setIsAiming(true)
+            // setAiming for useGame => true
             // on release -> throw newspaper
         }
     }
@@ -346,7 +372,7 @@ export default function Player({canvasIsClicked}) {
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
-        return( ((aiming || thrown) && index <= currentThrowingPaper) ?
+        return( ((isAiming || thrown) && index <= currentThrowingPaper) ?
         <RigidBody
             ref={paperRefs.current[index]}
             restitution={ 0.2 }

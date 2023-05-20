@@ -136,12 +136,12 @@ body,
 /**
 Aiming feedback arrow
 */
-  .arrow {
-    position: absolute;
+  /* .arrow {
+    /* position: absolute;
     transition: transform 0.1s linear;
     will-change: transform;
     width: 600px;
-    height: 100px;
+    height: 100px; */
     /* background-image: url("black-arrow.png");
     background-size: cover; */
-  }
+  
