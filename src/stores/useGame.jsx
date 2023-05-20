@@ -11,7 +11,8 @@ export default create(subscribeWithSelector((set) => {
         currentThrowingPaper: 0,
         thrownPaperLocations: [],
         targetLocations: [],
-        thrownIndexArray: [], 
+        thrownIndexArray: [],
+        isAiming: false, 
 
         /**
          * Time
@@ -107,6 +108,12 @@ export default create(subscribeWithSelector((set) => {
         setTargetLocations: (locationArray) => {
             set(() => ({
                 targetLocations: locationArray
+            }))
+        },
+
+        setIsAiming:(newValue) => {
+            set(() => ({
+                isAiming: newValue
             }))
         }
 

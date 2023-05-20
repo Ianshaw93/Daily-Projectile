@@ -17,6 +17,7 @@ export default function Player({canvasIsClicked}) {
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
+    const setIsAiming = useGame((state) => state.setIsAiming)
 
     // playerModel.scene.children.forEach((mesh) =>
     // {
@@ -238,6 +239,7 @@ export default function Player({canvasIsClicked}) {
             addThrownPaperIndex(currentThrowingPaper)
             // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
+            setIsAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -300,6 +302,7 @@ export default function Player({canvasIsClicked}) {
             // TODO: allow for drag of mouse -> distance of drag more force
             setPointLocation(event.point)
             setAiming(true)
+            setIsAiming(true)
             // on release -> throw newspaper
         }
     }
@@ -319,7 +322,6 @@ export default function Player({canvasIsClicked}) {
 
 
     return <>
-
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }

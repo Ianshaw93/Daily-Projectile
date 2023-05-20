@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import useGame from "./stores/useGame"
 import { addEffect } from "@react-three/fiber"
 
@@ -7,8 +7,14 @@ export default function Interface() {
     const startingNumPapers = useGame((state) => {return state.startingNumPapers}) 
     const papersDelivered = useGame((state) => state.papersDelivered) 
     const phase = useGame((state) => state.phase)
-    const restart = useGame((state) => state.restart)
-    
+    const restart = useGame((state) => state.restart)  
+    const isAiming = useGame((state) => state.isAiming)
+
+    const arrowRef = useRef();
+    const startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [mousePos, setMousePos] = useState({...startPos});
+
     let pDelivered = 0
     const deliveredRef = useRef()
     const timeRef1 = useRef()
@@ -41,12 +47,39 @@ export default function Interface() {
              */
             pDelivered = state.papersDelivered
 
+            
         })
-
+        const handleMouseMove = (event) => {
+            setMousePos({ x: event.clientX, y: event.clientY });
+          };            
+        window.addEventListener('mousemove', handleMouseMove);
         return () => {
             unsubscribeEffect()
+            window.removeEventListener('mousemove', handleMouseMove);
         }
     } ,[])
+
+    useEffect(() => {
+        const arrow = arrowRef.current;
+        if (arrow) {
+          const dx = mousePos.x - startPos.x;
+          const dy = mousePos.y - startPos.y;
+          const angle = Math.atan2(dy, dx);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+    
+          if (isAiming) {
+            arrow.style.transform = `
+              translate(${mousePos.x}px, ${mousePos.y}px)
+            `;
+          } else {
+            arrow.style.transform = `
+              translate(${startPos.x}px, ${startPos.y}px)
+              rotate(0rad)
+              scaleX(1)
+            `;
+          }
+        }
+      }, [mousePos, isMouseDown]);
 
     let papersThrown = startingNumPapers - papersLeft
     // cross emojis
@@ -78,7 +111,11 @@ export default function Interface() {
         </>
         
         ) }
-
+        <div class="aiming-circle" ref={arrowRef}>
+            <svg height="30" width="30">
+            <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
+            </svg>
+        </div>
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
     </div>)
