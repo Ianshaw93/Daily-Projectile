@@ -21,13 +21,13 @@ export default function Interface() {
     // // startPos should be centre of playerModel
     // const { viewport } = useThree();
     // const { width, height } = viewport();
-    // const startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     
     // const startPos = {
     //     x: (playerScreenLocation.x + 1) * window.innerWidth / 2, 
     //     y: (-playerScreenLocation.y + 1) * window.innerHeight / 2
     // } // converted to screen
-    const startPos = playerScreenLocation
+    // const startPos = playerScreenLocation
     console.log("screenCentre: ", startPos, playerScreenLocation)
 
     const [isMouseDown, setIsMouseDown] = useState(false);
@@ -79,7 +79,7 @@ export default function Interface() {
 
     useEffect(() => {
         console.log("mouse moved", mousePos, startPos)
-        const arrow = arrowRef.current;
+        const arrow = arrowRef.current
         if (arrow) {
           const dx = mousePos.x - startPos.x;
           const dy = mousePos.y - startPos.y;
@@ -88,10 +88,7 @@ export default function Interface() {
     
           if (isAiming) {
             arrow.style.transform = `
-              translate(${startPos.x}px, ${startPos.y}px)
-              rotate(${angle}rad)
-              scaleX(${dist / 100})
-              scaleY(${dist / 100})
+              translate(${mousePos.x}px, ${mousePos.y}px)
             `;
           } else {
             arrow.style.transform = `
@@ -137,25 +134,12 @@ export default function Interface() {
         </>
         
         ) }
-        <div className="aiming-circle">
-            <svg height="30" width="30">
+        <div className="aiming-circle" ref={arrowRef}>
+            <svg height="2000" width="2000">
                 <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
             </svg>        
         </div>
-        <div className="arrow" >
-            <img
-                ref={arrowRef}
-                src = "black-arrow.png"
-                style={{
-                    transform: `translate(50%, 50%) rotate(90)`,
-                    height: `100px`,
-                    width: `100px)`,
-                    transformOrigin: `top-center`,
-                    scale: '1',
-                    display: isAiming ? "" : "none"
-                  }}
-            />
-        </div>
+
 
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
