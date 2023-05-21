@@ -376,6 +376,9 @@ export default function Player({canvasIsClicked}) {
                     style={{ position: 'relative', left: '0%', top: '0%', transform: 'translate(-50%, -50%)', fill: 'yellow', fillOpacity: 0.4}}
                     onPointerDown={initAim}
                 >
+                    <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+                    🗞️
+                    </div>
                     <svg height="30" width="30">
                     <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
                     </svg>
