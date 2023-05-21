@@ -94,10 +94,11 @@ export default create(subscribeWithSelector((set) => {
 
 
         addThrownPaperIndex: (newIndex) => {
+            console.log("newIndex: ", newIndex, newIndex < 6 - 2)
             // console.log("newIndex: ", newIndex, (newIndex < startingNumPapers - 2) ? currentThrowingPaper + 1: currentThrowingPaper )
             set((state) => ({
                 thrownIndexArray: [...state.thrownIndexArray, newIndex],
-                currentThrowingPaper: (newIndex < state.startingNumPapers - 2) ? state.currentThrowingPaper + 1: state.currentThrowingPaper 
+                currentThrowingPaper: (newIndex < state.startingNumPapers - 1) ? state.currentThrowingPaper + 1: state.currentThrowingPaper 
             }))
             return{}
 
