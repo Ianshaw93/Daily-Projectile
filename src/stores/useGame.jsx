@@ -11,7 +11,9 @@ export default create(subscribeWithSelector((set) => {
         currentThrowingPaper: 0,
         thrownPaperLocations: [],
         targetLocations: [],
-        thrownIndexArray: [], 
+        thrownIndexArray: [],
+        distanceArray: [],
+        minDistance: null, 
 
         /**
          * Time
@@ -82,10 +84,31 @@ export default create(subscribeWithSelector((set) => {
              * if on property add to papersDelivered 
              * 
              *  */ 
-            set((state) => {                
-                if (checkIfOnTarget(newLocation, state.targetLocations)) {
+            set((state) => { 
+                let [isOnTarget, distance] = checkIfOnTarget(newLocation, state.targetLocations) 
+                distance = (distance * 10).toFixed(2) 
+                let scale = 10  
+                console.log ("onTarget distance: ", distance, isOnTarget)           
+                if (isOnTarget) {
+                    console.log ("onTarget distance: ", distance)
+                    
+                    // return distance
                 // if so add to papers delivered
-                    return { papersDelivered: state.papersDelivered + 1}
+                    if (state.minDistance == null || distance < state.minDistance) {
+                        return { papersDelivered: state.papersDelivered + 1, 
+                            distanceArray: [...state.distanceArray, distance],
+                            minDistance: distance
+                    }
+                    } else{
+                    
+                        return { papersDelivered: state.papersDelivered + 1, 
+                                distanceArray: [...state.distanceArray, distance]
+                        }
+                }
+                } else {
+                    return {
+                        distanceArray: [...state.distanceArray, distance]
+                    }
                 }
                 return{}
 

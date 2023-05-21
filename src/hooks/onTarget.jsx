@@ -20,6 +20,8 @@ export function checkIfOnTarget(paperLocation, targetLocations) {
                                 paperLocation.z-currentCentre[2]
                               ]
       console.log("currentVectorDelta: ", currentVectorDelta, currentMaxDelta)
+
+      let currentDistance = Math.sqrt(currentVectorDelta[0]**2 + currentVectorDelta[1]**2)
       /**
        * check that paper location is on any target area
        * check that y delta not goofing it
@@ -27,10 +29,10 @@ export function checkIfOnTarget(paperLocation, targetLocations) {
 
       if (Math.abs(currentVectorDelta[0]) <= Math.abs(currentMaxDelta[0]) && Math.abs(currentVectorDelta[1]) <= (Math.abs(currentMaxDelta[1]) + 1) && Math.abs(currentVectorDelta[2]) <= Math.abs(currentMaxDelta[2])) {
         console.log("hit")
-        return true
+        return [true, currentDistance] 
       }
 
     }
 
-  return false;
+  return [false, null];
 }
