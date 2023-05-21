@@ -25,6 +25,8 @@ function BlockStart({ position = [ 0, 0, 0 ]}) {
         const time = state.clock.getElapsedTime()
         const y = Math.sin(time) 
         const z = Math.cos(time) 
+        // const z = 0
+        // const y = 0
         startRef.current.setNextKinematicTranslation({x: y, y: position[1], z: z})                
     })
     return <group position={position} >

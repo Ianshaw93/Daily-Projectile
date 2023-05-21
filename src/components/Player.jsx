@@ -1,6 +1,6 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useKeyboardControls } from "@react-three/drei";
+import { useGLTF, useKeyboardControls, Html } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
@@ -36,6 +36,7 @@ export default function Player({canvasIsClicked}) {
 
     const playerRef = useRef()
     const bodyMesh = useRef()
+    const aimingCircleRef = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -259,7 +260,32 @@ export default function Player({canvasIsClicked}) {
              * perhaps set to null after final throw? -> would need checks that not null in throwing logic
              */
             // should be from global state -> to allow reset to zero
-            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1)) 
+            /**
+             * Logic for svg to follow mouse
+             * ideally tween back to player model
+             * have pointer from state
+             * have yellow click animation on playermodal; remove when aiming
+              */
+            // const circle = aimingCircleRef.current
+            // if (circle) {
+            //     console.log("state: ", state)
+            //     const mousePos = state.mouse
+        
+            //   if (aiming) {
+            //     circle.style.transform = `
+            //       translate(${mousePos.x}px, ${mousePos.y}px)
+            //     `;
+            //   } else {
+            //     circle.style.transform = `
+            //       translate(${mousePos.x}px, ${mousePos.y}px)
+            //       rotate(0rad)
+            //       scaleX(1)
+            //     `;
+            //   }
+            // }
+
+
         }
         
         /**
@@ -322,6 +348,7 @@ export default function Player({canvasIsClicked}) {
 
 
     return <>
+
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }
@@ -336,12 +363,24 @@ export default function Player({canvasIsClicked}) {
         <mesh
             ref={ bodyMesh } 
             castShadow
-            onPointerDown={initAim}
+            // onPointerDown={initAim}
             >
             {/* <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
 
             <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
             <meshStandardMaterial flatShading color="mediumpurple" />
+            <Html>
+                <div 
+                    class="aiming-circle" 
+                    ref={aimingCircleRef} 
+                    style={{ position: 'relative', left: '0%', top: '0%', transform: 'translate(-50%, -50%)', fill: 'yellow', fillOpacity: 0.4}}
+                    onPointerDown={initAim}
+                >
+                    <svg height="30" width="30">
+                    <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
+                    </svg>
+                </div>
+            </Html>
         </mesh>
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}

@@ -58,7 +58,7 @@ export default function Interface() {
             window.removeEventListener('mousemove', handleMouseMove);
         }
     } ,[])
-
+    // todo -> tween back to middle on release
     useEffect(() => {
         const arrow = arrowRef.current;
         if (arrow) {
@@ -66,12 +66,37 @@ export default function Interface() {
           const dy = mousePos.y - startPos.y;
           const angle = Math.atan2(dy, dx);
           const dist = Math.sqrt(dx * dx + dy * dy);
-    
+          const startX = mousePos.x - 15
+          const startY = mousePos.y - 15
+        //   distance changes color
+        // use max dx, or dy
+        // should be zero to 1
+        const relative_dx = dx / (window.innerWidth / 2)
+        const relative_dy = dy / (window.innerHeight / 2)
+        const magnitude = Math.max(Math.abs(relative_dx), Math.abs(relative_dy))
+        let color = 'black'
+        if (magnitude > 0.8) {
+            color = 'red'
+        } else if (magnitude > 0.65 && magnitude < 0.8) {
+            color = 'orange'
+        } else if (magnitude > 0.45 && magnitude < 0.65) {
+            color = 'yellow'
+        } else if (magnitude > 0.3 && magnitude < 0.45) {
+            color = 'green'
+        } else if (magnitude > 0.15 && magnitude < 0.3) {
+            color = 'blue'
+        }
+          console.log("dist: ", magnitude)
           if (isAiming) {
+            arrow.style.display = ''
+            arrow.style.fill = color
             arrow.style.transform = `
-              translate(${mousePos.x}px, ${mousePos.y}px)
+              translate(${startX}px, ${startY}px)
+            
             `;
           } else {
+            arrow.style.display = 'none'
+            arrow.style.fill = 'black'
             arrow.style.transform = `
               translate(${startPos.x}px, ${startPos.y}px)
               rotate(0rad)
@@ -79,7 +104,7 @@ export default function Interface() {
             `;
           }
         }
-      }, [mousePos, isMouseDown]);
+      }, [mousePos, isAiming]);
 
     let papersThrown = startingNumPapers - papersLeft
     // cross emojis
@@ -111,7 +136,14 @@ export default function Interface() {
         </>
         
         ) }
-        <div class="aiming-circle" ref={arrowRef}>
+        <div 
+            class="aiming-circle" 
+            ref={arrowRef}
+            style={{transform: 'translate(-15px, +15px)'}}
+        >
+        {/* <svg xmlns="http://www.w3.org/2000/svg" width="11" height="20" id="arrow-head">
+            <path fill-rule="evenodd" d="M.366 19.708c.405.39 1.06.39 1.464 0l8.563-8.264a1.95 1.95 0 0 0 0-2.827L1.768.292A1.063 1.063 0 0 0 .314.282a.976.976 0 0 0-.011 1.425l7.894 7.617a.975.975 0 0 1 0 1.414L.366 18.295a.974.974 0 0 0 0 1.413"></path>
+        </svg> */}
             <svg height="30" width="30">
             <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
             </svg>
