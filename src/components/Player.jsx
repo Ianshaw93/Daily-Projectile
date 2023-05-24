@@ -235,13 +235,6 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            // use pointer location @ release -> -1 to 1
-            // TODO: use magnitude of each x and y
-            // setThrowing(true)
-            // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
-            // calc y from magnitude
-            // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
 
@@ -263,6 +256,12 @@ export default function Player({canvasIsClicked}) {
 
                 // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
             }
+            /**
+             * Initially can make hand disappear again
+             *  hand should follow impulse path and follow through, then disappear
+             */
+
+            handRef.current.position.set([ 0, -5, -1 ])
             /**
              * below changes state for current throwing newspaper
              * unclear if this should be actioned when last in ref array
@@ -337,7 +336,7 @@ export default function Player({canvasIsClicked}) {
         position={[ 0, -5, -1 ]}
         >
             <boxGeometry args={ [ 0.1, 0.1, 0.1 ] } />
-            <meshStandardMaterial flatShading color="blue" />
+            <meshStandardMaterial flatShading color="#E2B8B4" />
         </mesh>
     <RigidBody
         ref={ playerRef }
