@@ -95,7 +95,7 @@ export default function Interface() {
             
             `;
           } else {
-            arrow.style.display = ''
+            arrow.style.display = 'none'
             arrow.style.fill = 'black'
             arrow.style.transform = `
               translate(${startPos.x}px, ${startPos.y}px)

@@ -273,9 +273,7 @@ export default function Player({canvasIsClicked}) {
             //     const mousePos = state.mouse
         
             //   if (aiming) {
-            //     circle.style.transform = `
-            //       translate(${mousePos.x}px, ${mousePos.y}px)
-            //     `;
+            //     arrow.style.display = ''
             //   } else {
             //     circle.style.transform = `
             //       translate(${mousePos.x}px, ${mousePos.y}px)
@@ -376,9 +374,9 @@ export default function Player({canvasIsClicked}) {
                     style={{ position: 'relative', left: '0%', top: '0%', transform: 'translate(-50%, -50%)', fill: 'yellow', fillOpacity: 0.4}}
                     onPointerDown={initAim}
                 >
-                    <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+                    {!aiming ? <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
                     🗞️
-                    </div>
+                    </div> : null}
                     <svg height="30" width="30">
                     <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
                     </svg>
