@@ -199,17 +199,27 @@ export default function Player({canvasIsClicked}) {
             /**
              * moves paper before throw is actioned on mouse up
             */
-           
-           if(!thrown && throwingNewspaper.current){
-                // attempt -> paper always above body and transaparent paper with hand??
-                // bug fixed: 2nd paper onwards throwing downwards
-                // setLinVel == 0 to overcome velocity from free falling pre throw
-                throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
-                throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
-                throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-                
-                // console.log("paperQuantity: ", paperQuantity)
-            }
+           if (throwingNewspaper.current) {
+
+               if(!thrown && throwingNewspaper.current){
+                    // attempt -> paper always above body and transaparent paper with hand??
+                    // bug fixed: 2nd paper onwards throwing downwards
+                    // setLinVel == 0 to overcome velocity from free falling pre throw
+                    throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
+                    throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
+                    // change to follow pointer x and y -> like impulse?
+                    // change in arc like with arrow?
+                    // change x and z only
+                    console.log("state: ", state)
+                    // find max difference in screen at aiming area
+                    throwingNewspaper.current.setTranslation({x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2})
+                    
+                    // console.log("paperQuantity: ", paperQuantity)
+                } else {
+                    throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
+
+                }
+           }
             
 
 
