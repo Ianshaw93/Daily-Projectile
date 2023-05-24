@@ -35,6 +35,7 @@ export default function Player({canvasIsClicked}) {
 
     const playerRef = useRef()
     const bodyMesh = useRef()
+    const handRef = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -210,9 +211,10 @@ export default function Player({canvasIsClicked}) {
                     // change to follow pointer x and y -> like impulse?
                     // change in arc like with arrow?
                     // change x and z only
-                    console.log("state: ", state)
+                    console.log("handRef: ", handRef.current)
                     // find max difference in screen at aiming area
                     throwingNewspaper.current.setTranslation({x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2})
+                    handRef.current.position.set(playerPosition.x + state.mouse.x, playerPosition.y + 0.6, playerPosition.z - state.mouse.y + 0.2)
                     
                     // console.log("paperQuantity: ", paperQuantity)
                 } else {
@@ -326,10 +328,17 @@ export default function Player({canvasIsClicked}) {
     // perhaps change thrown with normal paper mesh
     // each time thrown selected -> add mesh location to array -> if mesh velocity == 0
      */
-
+        // if aiming have hand on paper? possible? - try cube - non rigidboy
 
     return <>
 
+        <mesh
+        ref={handRef}
+        position={[ 0, -5, -1 ]}
+        >
+            <boxGeometry args={ [ 0.1, 0.1, 0.1 ] } />
+            <meshStandardMaterial flatShading color="blue" />
+        </mesh>
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }
