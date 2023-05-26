@@ -375,7 +375,12 @@ export default function Player({canvasIsClicked}) {
                     onPointerDown={initAim}
                 >
                     {!aiming ? <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
-                    🗞️
+                    {/* 🗞️ */}
+                    {/* stand in arrow to be press down and hold icon */}
+                    <img 
+                        src="black-arrow.png"
+                        height={10}
+                    />
                     </div> : null}
                     <svg height="30" width="30">
                     <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
