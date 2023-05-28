@@ -17,6 +17,7 @@ export default function Interface() {
     const distanceRef = useRef()
     console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
 
+    // bug still occurs without this useEffect
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
             const state = useGame.getState()
@@ -49,7 +50,7 @@ export default function Interface() {
         })
 
         return () => {
-            unsubscribeEffect()
+            // unsubscribeEffect()
         }
     } ,[])
 

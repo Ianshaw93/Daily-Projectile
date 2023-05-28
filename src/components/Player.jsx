@@ -24,6 +24,9 @@ export default function Player({canvasIsClicked}) {
     // })
 
     let startingNumPapers = 6
+    let counter = 0
+    let aimCounter = null
+    let tempThrown = false
     /**
      * ref array created for all papers users can throw
      * Bug: position triggered when < -3 y but paper yet to be thrown
@@ -47,6 +50,7 @@ export default function Player({canvasIsClicked}) {
     const [ thrown, setThrown ] = useState(false)
     const thrownIndexArray = useGame((state) => state.thrownIndexArray)
     const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
+    const [ aimCount, setAimCount ] = useState(-1)
     // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
 
     const jump = () => {
@@ -222,34 +226,40 @@ export default function Player({canvasIsClicked}) {
 
         }
         // throwing when pointer lifted
-        if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            // use pointer location @ release -> -1 to 1
-            // TODO: use magnitude of each x and y
-            // setThrowing(true)
-            // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
-            // calc y from magnitude
-            // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
-            let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
-            let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
+        // try timed guard
+        if (aiming && !canvasIsClicked && throwingNewspaper.current && !tempThrown && !thrown) {
+            // have time since last action
+            if (thrownPaperLocations.length <= aimCount && throwingNewspaper.current.translation().y > 0) {
 
-            throwingNewspaper.current.applyImpulse(impulse)
-            setThrown(true)
-            addThrownPaperIndex(currentThrowingPaper)
-            // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
-            setAiming(false)
-            // below should be actioned on aiming but returned to pile if not thrown
-            // setPaperQuantity((current) => current - 1)
-            subtractPaperLeft()
-            /**
-             * below changes throwing newspaper to next in ref array
-             * not actioned when last in ref array -> no further paper mesh to reference
-             */
-            if (currentThrowingPaper < startingNumPapers - 2) {
-
-                throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
-
-                // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
+                // use pointer location @ release -> -1 to 1
+                // TODO: use magnitude of each x and y
+                // setThrowing(true)
+                // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
+                // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
+                // calc y from magnitude
+                // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
+                let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
+                let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
+    
+                throwingNewspaper.current.applyImpulse(impulse)
+                setThrown(true)
+                tempThrown = true
+                addThrownPaperIndex(currentThrowingPaper)
+                // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
+                setAiming(false)
+                // below should be actioned on aiming but returned to pile if not thrown
+                // setPaperQuantity((current) => current - 1)
+                subtractPaperLeft()
+                /**
+                 * below changes throwing newspaper to next in ref array
+                 * not actioned when last in ref array -> no further paper mesh to reference
+                 */
+                if (currentThrowingPaper < startingNumPapers - 2) {
+    
+                    throwingNewspaper = paperRefs.current[currentThrowingPaper + 1]
+    
+                    // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
+                }
             }
             /**
              * below changes state for current throwing newspaper
@@ -259,17 +269,34 @@ export default function Player({canvasIsClicked}) {
             // should be from global state -> to allow reset to zero
             // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
         }
-        
+        // time
         /**
          * bug: linvel null after final paper is thrown
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
+         * 
+         * bug: shows false, false, true
+         * then interface runs again => papersLeft, papersdelivered => 4 1
+         * player re-renders delivered 1
+         * release check 1 1 2
+         * impulse applied 1
+         * newIndex 2 true
+         * 
+         * first condish true
+         * checks thrownIndexArray includes chosen index 1
+         * 
+         * interface re-renders => papersLeft, papersdelivered => 3 1
+         * release check 1 1 3
+         * impulse applied 1!!! -> should be 2? rerun without adding?
+         * newIndex: 3 true
+         * 
+         * above repeated until all thrown
          */
-        console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
-        console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
-        console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
-        console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
-        console.groupEnd()
+        // console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
+        // console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
+        // console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
+        // console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
+        // console.groupEnd()
 
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
@@ -278,7 +305,7 @@ export default function Player({canvasIsClicked}) {
             let currentMesh = paperRefs.current[chosenIndex].current
             // console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
             // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
@@ -291,9 +318,23 @@ export default function Player({canvasIsClicked}) {
     function initAim(event) {
         
         if (thrown) { // not actioned on first go; only after at least 1 has been thrown
+            console.log("thrown true aim init")
             setThrown(false)
+            tempThrown = false
+        } else {
+            console.log("aim init not thrown")
         }
         if (papersLeft > 0) {
+            console.log("papersLeft: ", papersLeft)
+            // have aiming counter
+            // if (!aimCount) {
+            //     setAimCount(0)
+            // } else {
+                
+                setAimCount(prev => prev + 1)
+            // }
+            console.log("aimCounter: ", aimCount)
+            // add index only if < aimCounter
 
             // only if newspapers are left to throw!
             // Done: have object in place of newspaper - > cube for now
