@@ -4,6 +4,7 @@ import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
+import { Scooter } from './Scooter.jsx'
 
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked}) {
@@ -17,6 +18,7 @@ export default function Player({canvasIsClicked}) {
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
+
 
     // playerModel.scene.children.forEach((mesh) =>
     // {
@@ -34,7 +36,6 @@ export default function Player({canvasIsClicked}) {
     const currentThrowingPaper = useGame((state) => state.currentThrowingPaper)
 
     const playerRef = useRef()
-    const bodyMesh = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -331,16 +332,23 @@ export default function Player({canvasIsClicked}) {
         >
         {/* TODO: allow click and drag to set and aim for throw; release for throw */}
         {/* Later: click area should be near character, allow from not on character later */}
-        <mesh
-            ref={ bodyMesh } 
+        {/* <mesh
+            ref={ playerRef }
+            position={ [ 0, 1, 0 ] }
             castShadow
             onPointerDown={initAim}
             >
-            {/* <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
+            <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
 
-            <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
-            <meshStandardMaterial flatShading color="mediumpurple" />
-        </mesh>
+            {/* <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
+            <meshStandardMaterial flatShading color="mediumpurple" /> */}
+        {/* </mesh> */}
+        <Scooter 
+            // ref={ playerRef }
+            // position={ [ 0, 1, 0 ] }
+            // castShadow
+            // onPointerDown={initAim}        
+        />
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
