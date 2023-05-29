@@ -383,7 +383,7 @@ export default function Player({canvasIsClicked}) {
                     />
                     </div> : null}
                     <svg height="60" width="60">
-                    <circle cx="30" cy="30" r="30" stroke-width="0"></circle>
+                    {/* <circle cx="30" cy="30" r="30" stroke-width="0"></circle> */}
                     </svg>
                 </div>
             </Html>

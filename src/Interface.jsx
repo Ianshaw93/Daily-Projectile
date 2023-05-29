@@ -20,6 +20,7 @@ export default function Interface() {
     const timeRef1 = useRef()
     const timeRef2 = useRef()
     console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
+    let release_prompt_text_color;
 
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
@@ -87,9 +88,11 @@ export default function Interface() {
             color = 'blue'
         }
           console.log("dist: ", magnitude)
+          release_prompt_text_color = color
           if (isAiming) {
             arrow.style.display = ''
             arrow.style.fill = color
+            arrow.style.color = color
             arrow.style.transform = `
               translate(${startX}px, ${startY}px)
             
@@ -123,6 +126,7 @@ export default function Interface() {
      * 
      */
     console.log("delivered", papersDelivered)
+    let svg_dims = 60
     return (<div className="interface">
         <div ref={timeRef1} className="time"></div>
         <div className="papersDelivered">📰 <span ref={deliveredRef}>{papersDelivered}</span>/ {startingNumPapers} </div>
@@ -144,16 +148,19 @@ export default function Interface() {
         {/* <svg xmlns="http://www.w3.org/2000/svg" width="11" height="20" id="arrow-head">
             <path fill-rule="evenodd" d="M.366 19.708c.405.39 1.06.39 1.464 0l8.563-8.264a1.95 1.95 0 0 0 0-2.827L1.768.292A1.063 1.063 0 0 0 .314.282a.976.976 0 0 0-.011 1.425l7.894 7.617a.975.975 0 0 1 0 1.414L.366 18.295a.974.974 0 0 0 0 1.413"></path>
         </svg> */}
-            <div class="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1 }}>
+            <div class="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1, color: release_prompt_text_color }}>
                 {/* 🗞️ */}
-                <img 
+                {/* have text change colour and be at centre of pointer */}
+                release to 🎯
+                {/* <img 
                         src="black-arrow.png"
                         height={30}
-                    />
+                    /> */}
             </div>
-            <svg height="30" width="30">
-                <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
-            </svg>
+            {/* TODO: have centre of circle always at pointer but change radius */}
+            {/* <svg height="60" width="60">
+                <circle cx="30" cy="30" r="30" stroke-width="0"></circle>
+            </svg> */}
         </div>
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
