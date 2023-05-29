@@ -378,12 +378,12 @@ export default function Player({canvasIsClicked}) {
                     {/* 🗞️ */}
                     {/* stand in arrow to be press down and hold icon */}
                     <img 
-                        src="black-arrow.png"
-                        height={10}
+                        src="001-drag-down.png"
+                        height={40}
                     />
                     </div> : null}
-                    <svg height="30" width="30">
-                    <circle cx="15" cy="15" r="12" stroke-width="0"></circle>
+                    <svg height="60" width="60">
+                    <circle cx="30" cy="30" r="30" stroke-width="0"></circle>
                     </svg>
                 </div>
             </Html>
