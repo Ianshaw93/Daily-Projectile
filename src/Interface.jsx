@@ -50,7 +50,7 @@ export default function Interface() {
         })
 
         return () => {
-            // unsubscribeEffect()
+            unsubscribeEffect()
         }
     } ,[])
 
