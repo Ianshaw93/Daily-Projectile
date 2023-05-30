@@ -326,30 +326,31 @@ export default function Player({canvasIsClicked}) {
         restitution={ 0.2 }
         friction={ 1 } 
         linearDamping={ 0.5 }
-        angularDamping={ 0.5 }
+        // angularDamping={ Infinity }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
+        enableRotation={false}
         >
-        {/* TODO: allow click and drag to set and aim for throw; release for throw */}
-        {/* Later: click area should be near character, allow from not on character later */}
-        {/* <mesh
-            ref={ playerRef }
-            position={ [ 0, 1, 0 ] }
-            castShadow
-            onPointerDown={initAim}
-            >
-            <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
-
-            {/* <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
-            <meshStandardMaterial flatShading color="mediumpurple" /> */}
-        {/* </mesh> */}
         <Scooter 
-            // ref={ playerRef }
+            />
+    </RigidBody>
+            {/* TODO: allow click and drag to set and aim for throw; release for throw */}
+            {/* // ref={ playerRef }
             // position={ [ 0, 1, 0 ] }
             // castShadow
-            // onPointerDown={initAim}        
-        />
-    </RigidBody>
+            // onPointerDown={initAim}         */}
+            {/* Later: click area should be near character, allow from not on character later */}
+            {/* <mesh
+                ref={ playerRef }
+                position={ [ 0, 1, 0 ] }
+                castShadow
+                onPointerDown={initAim}
+                >
+                <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
+    
+                {/* <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
+                <meshStandardMaterial flatShading color="mediumpurple" /> */}
+            {/* </mesh> */}
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
         return( ((aiming || thrown) && index <= currentThrowingPaper) ?
