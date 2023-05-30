@@ -1,6 +1,6 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useKeyboardControls } from "@react-three/drei";
+import { useGLTF, useKeyboardControls, Html } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
@@ -17,6 +17,7 @@ export default function Player({canvasIsClicked}) {
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
+    const setIsAiming = useGame((state) => state.setIsAiming)
 
     // playerModel.scene.children.forEach((mesh) =>
     // {
@@ -36,6 +37,7 @@ export default function Player({canvasIsClicked}) {
     const playerRef = useRef()
     const bodyMesh = useRef()
     const handRef = useRef()
+    const aimingCircleRef = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -243,6 +245,7 @@ export default function Player({canvasIsClicked}) {
             addThrownPaperIndex(currentThrowingPaper)
             // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
+            setIsAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -268,7 +271,30 @@ export default function Player({canvasIsClicked}) {
              * perhaps set to null after final throw? -> would need checks that not null in throwing logic
              */
             // should be from global state -> to allow reset to zero
-            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1)) 
+            /**
+             * Logic for svg to follow mouse
+             * ideally tween back to player model
+             * have pointer from state
+             * have yellow click animation on playermodal; remove when aiming
+              */
+            // const circle = aimingCircleRef.current
+            // if (circle) {
+            //     console.log("state: ", state)
+            //     const mousePos = state.mouse
+        
+            //   if (aiming) {
+            //     arrow.style.display = ''
+            //   } else {
+            //     circle.style.transform = `
+            //       translate(${mousePos.x}px, ${mousePos.y}px)
+            //       rotate(0rad)
+            //       scaleX(1)
+            //     `;
+            //   }
+            // }
+
+
         }
         
         /**
@@ -311,6 +337,7 @@ export default function Player({canvasIsClicked}) {
             // TODO: allow for drag of mouse -> distance of drag more force
             setPointLocation(event.point)
             setAiming(true)
+            setIsAiming(true)
             // on release -> throw newspaper
         }
     }
@@ -352,12 +379,32 @@ export default function Player({canvasIsClicked}) {
         <mesh
             ref={ bodyMesh } 
             castShadow
-            onPointerDown={initAim}
+            // onPointerDown={initAim}
             >
             {/* <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
 
             <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
             <meshStandardMaterial flatShading color="mediumpurple" />
+            <Html>
+                <div 
+                    class="aiming-circle" 
+                    ref={aimingCircleRef} 
+                    style={{ position: 'relative', left: '0%', top: '0%', transform: 'translate(-50%, -50%)', fill: 'yellow', fillOpacity: 0.4}}
+                    onPointerDown={initAim}
+                >
+                    {!aiming ? <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+                    {/* 🗞️ */}
+                    {/* stand in arrow to be press down and hold icon */}
+                    <img 
+                        src="001-drag-down.png"
+                        height={40}
+                    />
+                    </div> : null}
+                    <svg height="60" width="60">
+                    {/* <circle cx="30" cy="30" r="30" stroke-width="0"></circle> */}
+                    </svg>
+                </div>
+            </Html>
         </mesh>
     </RigidBody>
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
