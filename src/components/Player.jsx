@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
 import { Scooter } from './Scooter.jsx'
+import { PickupTruck } from './PickupTruck.jsx'
+import { BackPack } from "./Backpack";
 
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked}) {
@@ -58,7 +60,7 @@ export default function Player({canvasIsClicked}) {
         const ray = new rapier.Ray(origin, direction)
         const hit = rapierWorld.castRay(ray, 10, true)
         if (hit.toi < 0.1) {
-            playerRef.current.applyImpulse({ x:0, y:0.05, z:0 })
+            playerRef.current.applyImpulse({ x:0, y:0.25, z:0 })
         }
         
     }
@@ -266,11 +268,11 @@ export default function Player({canvasIsClicked}) {
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
          */
-        console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
-        console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
-        console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
-        console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
-        console.groupEnd()
+        // console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
+        // console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
+        // console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
+        // console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
+        // console.groupEnd()
 
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
@@ -279,7 +281,7 @@ export default function Player({canvasIsClicked}) {
             let currentMesh = paperRefs.current[chosenIndex].current
             // console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
             // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
+            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
@@ -325,14 +327,19 @@ export default function Player({canvasIsClicked}) {
         ref={ playerRef }
         restitution={ 0.2 }
         friction={ 1 } 
+        onPointerDown={initAim}
         linearDamping={ 0.5 }
-        // angularDamping={ Infinity }
+        angularDamping={ Infinity }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
         enableRotation={false}
+        colliders={false}
         >
         <Scooter 
-            />
+            rotation={[0, -Math.PI / 2, 0]}
+            scale={0.5}
+        />
+        <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>
     </RigidBody>
             {/* TODO: allow click and drag to set and aim for throw; release for throw */}
             {/* // ref={ playerRef }
@@ -344,7 +351,6 @@ export default function Player({canvasIsClicked}) {
                 ref={ playerRef }
                 position={ [ 0, 1, 0 ] }
                 castShadow
-                onPointerDown={initAim}
                 >
                 <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
     
