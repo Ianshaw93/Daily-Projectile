@@ -11,7 +11,7 @@ export default function Experience({canvasIsClicked, canvasRef})
 
     return <>
         <Physics>
-            {/* <Debug /> */}
+            <Debug />
             <Lights />
             {/* <Level 
                 count = {5}

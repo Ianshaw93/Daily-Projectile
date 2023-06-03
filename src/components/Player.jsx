@@ -5,8 +5,8 @@ import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
 import { Scooter } from './Scooter.jsx'
-import { PickupTruck } from './PickupTruck.jsx'
-import { BackPack } from "./Backpack";
+import { Paperguy } from "./Paperguy";
+
 
 // isCanvasClicked sent as prop 
 export default function Player({canvasIsClicked}) {
@@ -55,12 +55,17 @@ export default function Player({canvasIsClicked}) {
     const jump = () => {
 
         const origin = playerRef.current.translation()
-        origin.y -= 0.31
+        // origin.y -= 0.31 // dimension of object
+        origin.y -= 0.247
+
         const direction = { x:0, y:-1, z:0 }
         const ray = new rapier.Ray(origin, direction)
         const hit = rapierWorld.castRay(ray, 10, true)
-        if (hit.toi < 0.1) {
-            playerRef.current.applyImpulse({ x:0, y:0.25, z:0 })
+        console.log("hit: ", hit, origin, ray)
+        // if (hit.toi < 0.1) {
+        if (hit.toi == 0) {
+            playerRef.current.applyImpulse({ x:0, y:0.025, z:0 })
+            // playerRef.current.applyImpulse({ x:0, y:0.25, z:0 })
         }
         
     }
@@ -120,7 +125,7 @@ export default function Player({canvasIsClicked}) {
         const impulse = { x:0, y:0, z:0 }
         const torque = { x:0, y:0, z:0 }
 
-        const impulseStrength = 1 * delta
+        const impulseStrength = 0.5 * delta
         const torqueStrength = 1 * delta
 
         if (forward) {
@@ -333,13 +338,13 @@ export default function Player({canvasIsClicked}) {
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
         enableRotation={false}
-        colliders={false}
+        // colliders={false}
         >
-        <Scooter 
-            rotation={[0, -Math.PI / 2, 0]}
+        <Paperguy 
+            rotation={[0, Math.PI, 0]}
             scale={0.5}
         />
-        <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>
+        {/* <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/> */}
     </RigidBody>
             {/* TODO: allow click and drag to set and aim for throw; release for throw */}
             {/* // ref={ playerRef }
