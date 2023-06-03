@@ -38,6 +38,7 @@ export default function Player({canvasIsClicked}) {
     const currentThrowingPaper = useGame((state) => state.currentThrowingPaper)
 
     const playerRef = useRef()
+    const modelRef = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -170,7 +171,9 @@ export default function Player({canvasIsClicked}) {
         // }
         // else 
         if (!aiming) {
-        cameraPosition.z += 2.5}
+        cameraPosition.z += 2.5
+    
+    }
         else {
             // get difference between player centre and position
             cameraPosition.x += state.pointer.x
@@ -202,11 +205,25 @@ export default function Player({canvasIsClicked}) {
         if (playerPosition.y < - 3) {
             restart()
         }
-        
+        if(!aiming) {
+            const eulerRotation = new THREE.Euler(0, 0, 0)
+            const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
+            playerRef.current.setRotation(quarternionRotation, true)            
+        }
+        // if()
         if (aiming && canvasIsClicked) { // aiming
             /**
              * moves paper before throw is actioned on mouse up
             */
+            const eulerRotation = new THREE.Euler(0, 90, 0)
+            const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
+            playerRef.current.setRotation(quarternionRotation, true)
+        //    if (modelRef.current) {
+            //    modelRef.current.rotation.y = 0
+            //    modelRef.current.scale = 1.5
+                // playerRef.current.setRotation({x: , y})
+               console.log("modelRef.current: ", modelRef.current)
+        //    }
            
            if(!thrown && throwingNewspaper.current){
                 // attempt -> paper always above body and transaparent paper with hand??
@@ -334,34 +351,22 @@ export default function Player({canvasIsClicked}) {
         friction={ 1 } 
         onPointerDown={initAim}
         linearDamping={ 0.5 }
-        angularDamping={ Infinity }
+        // angularDamping={ Infinity }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
-        enableRotation={false}
-        // colliders={false}
+        // enableRotation={false}
+        colliders={false}
         >
-        <Paperguy 
+            {/* when throwing model to turn side on */}
+        <Paperguy
+            ref={ modelRef }
             rotation={[0, Math.PI, 0]}
-            scale={0.5}
+            scale={1}
+            
         />
-        {/* <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/> */}
+        <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>
     </RigidBody>
             {/* TODO: allow click and drag to set and aim for throw; release for throw */}
-            {/* // ref={ playerRef }
-            // position={ [ 0, 1, 0 ] }
-            // castShadow
-            // onPointerDown={initAim}         */}
-            {/* Later: click area should be near character, allow from not on character later */}
-            {/* <mesh
-                ref={ playerRef }
-                position={ [ 0, 1, 0 ] }
-                castShadow
-                >
-                <primitive object={ playerModel.scene } scale={ 0.2 } /> */}
-    
-                {/* <boxGeometry args={ [ 0.3, 0.3, 0.3 ] } />
-                <meshStandardMaterial flatShading color="mediumpurple" /> */}
-            {/* </mesh> */}
     {/* newspaper meshes below -> bug on restart meshes still shown in thrown location */}
     {Array.from({length: startingNumPapers}, (_, index) => {
         return( ((aiming || thrown) && index <= currentThrowingPaper) ?
