@@ -215,26 +215,30 @@ export default function Player({canvasIsClicked}) {
             /**
              * moves paper before throw is actioned on mouse up
             */
-            const eulerRotation = new THREE.Euler(0, 90, 0)
-            const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
-            playerRef.current.setRotation(quarternionRotation, true)
-        //    if (modelRef.current) {
-            //    modelRef.current.rotation.y = 0
-            //    modelRef.current.scale = 1.5
-                // playerRef.current.setRotation({x: , y})
+           //    if (modelRef.current) {
+               //    modelRef.current.rotation.y = 0
+               //    modelRef.current.scale = 1.5
+               // playerRef.current.setRotation({x: , y})
                console.log("modelRef.current: ", modelRef.current)
-        //    }
-           
-           if(!thrown && throwingNewspaper.current){
-                // attempt -> paper always above body and transaparent paper with hand??
-                // bug fixed: 2nd paper onwards throwing downwards
-                // setLinVel == 0 to overcome velocity from free falling pre throw
-                throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
-                throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
-                throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-                
-                // console.log("paperQuantity: ", paperQuantity)
-            }
+               //    }
+               
+               if(!thrown && throwingNewspaper.current){
+                   // attempt -> paper always above body and transaparent paper with hand??
+                   // bug fixed: 2nd paper onwards throwing downwards
+                   // setLinVel == 0 to overcome velocity from free falling pre throw
+                   throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
+                   throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
+                   throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
+                   
+                   // console.log("paperQuantity: ", paperQuantity)
+                }
+                playerRef.current.enableRotation=true
+                const eulerRotation = new THREE.Euler(0, 90, 0)
+                // should always face camera
+                // later lerp or use animation
+                const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
+                playerRef.current.setRotation(quarternionRotation, true)
+                playerRef.current.enableRotation=false
             
 
 
@@ -354,7 +358,7 @@ export default function Player({canvasIsClicked}) {
         // angularDamping={ Infinity }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
-        // enableRotation={false}
+        enableRotation={false}
         colliders={false}
         >
             {/* when throwing model to turn side on */}
