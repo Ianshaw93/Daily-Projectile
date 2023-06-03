@@ -133,3 +133,8 @@ body,
     flex-wrap: wrap;
     width: 100%;
   }
+
+  .aiming-paper {
+    pointer-events: none;
+    user-select: none;
+  }

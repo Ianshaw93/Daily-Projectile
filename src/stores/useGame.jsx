@@ -14,6 +14,7 @@ export default create(subscribeWithSelector((set) => {
         thrownIndexArray: [],
         distanceArray: [],
         minDistance: null, 
+        isAiming: false, 
 
         /**
          * Time
@@ -131,6 +132,12 @@ export default create(subscribeWithSelector((set) => {
         setTargetLocations: (locationArray) => {
             set(() => ({
                 targetLocations: locationArray
+            }))
+        },
+
+        setIsAiming:(newValue) => {
+            set(() => ({
+                isAiming: newValue
             }))
         }
 

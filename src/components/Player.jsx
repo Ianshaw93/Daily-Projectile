@@ -1,6 +1,6 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useKeyboardControls } from "@react-three/drei";
+import { useGLTF, useKeyboardControls, Html } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
@@ -20,6 +20,7 @@ export default function Player({canvasIsClicked}) {
     const restart = useGame((state) => state.restart)
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
+    const setIsAiming = useGame((state) => state.setIsAiming)
 
 
     // playerModel.scene.children.forEach((mesh) =>
@@ -39,6 +40,7 @@ export default function Player({canvasIsClicked}) {
 
     const playerRef = useRef()
     const modelRef = useRef()
+    const handRef = useRef()
     
     let throwingNewspaper = paperRefs.current[currentThrowingPaper]
     const [ subscribeKeys, getKeys ] = useKeyboardControls()
@@ -215,30 +217,36 @@ export default function Player({canvasIsClicked}) {
             /**
              * moves paper before throw is actioned on mouse up
             */
-           //    if (modelRef.current) {
-               //    modelRef.current.rotation.y = 0
-               //    modelRef.current.scale = 1.5
-               // playerRef.current.setRotation({x: , y})
-               console.log("modelRef.current: ", modelRef.current)
-               //    }
                
-               if(!thrown && throwingNewspaper.current){
-                   // attempt -> paper always above body and transaparent paper with hand??
-                   // bug fixed: 2nd paper onwards throwing downwards
-                   // setLinVel == 0 to overcome velocity from free falling pre throw
-                   throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
-                   throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
-                   throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+0.6, z: playerPosition.z + 0.2})
-                   
-                   // console.log("paperQuantity: ", paperQuantity)
-                }
-                playerRef.current.enableRotation=true
-                const eulerRotation = new THREE.Euler(0, 90, 0)
-                // should always face camera
-                // later lerp or use animation
-                const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
-                playerRef.current.setRotation(quarternionRotation, true)
-                playerRef.current.enableRotation=false
+                if (throwingNewspaper.current) {
+                    
+                    if(!thrown && throwingNewspaper.current){
+                        // attempt -> paper always above body and transaparent paper with hand??
+                        // bug fixed: 2nd paper onwards throwing downwards
+                        // setLinVel == 0 to overcome velocity from free falling pre throw
+                        throwingNewspaper.current.setLinvel({x: 0, y: 0, z: 0})
+                        throwingNewspaper.current.setAngvel({ x: 0, y: 0, z: 0 }) 
+                        // change to follow pointer x and y -> like impulse?
+                        // change in arc like with arrow?
+                        // change x and z only
+                        console.log("handRef: ", handRef.current)
+                        // find max difference in screen at aiming area
+                        throwingNewspaper.current.setTranslation({x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2})
+                        handRef.current.position.set(playerPosition.x + state.mouse.x, playerPosition.y + 0.6, playerPosition.z - state.mouse.y + 0.2)
+                        
+                        // console.log("paperQuantity: ", paperQuantity)
+                    } else {
+                        throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
+                        
+                    }
+                    playerRef.current.enableRotation=true
+                    const eulerRotation = new THREE.Euler(0, 90, 0)
+                    // should always face camera
+                    // later lerp or use animation
+                    const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
+                    playerRef.current.setRotation(quarternionRotation, true)
+                    playerRef.current.enableRotation=false
+           }
             
 
 
@@ -252,13 +260,6 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            // use pointer location @ release -> -1 to 1
-            // TODO: use magnitude of each x and y
-            // setThrowing(true)
-            // first thoughts: yPointer == yImpulse and zImpulse takes yPointer magnitude
-            // let impulse = { x:-state.pointer.x/100, y:0.01, z:state.pointer.y/100 } // impulse for when paper follows pointer
-            // calc y from magnitude
-            // let magnitudePointer = Math.sqrt((state.pointer.x/50)**2 + (state.pointer.y/50)**2)
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
 
@@ -267,6 +268,7 @@ export default function Player({canvasIsClicked}) {
             addThrownPaperIndex(currentThrowingPaper)
             // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
+            setIsAiming(false)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -281,12 +283,41 @@ export default function Player({canvasIsClicked}) {
                 // setCurrentThrowingPaper((current) => (current < papersLeft - 2 ) ? current + 1 : current)
             }
             /**
+             * Initially can make hand disappear again
+             *  hand should follow impulse path and follow through, then disappear
+             */
+
+            handRef.current.position.set([ 0, -5, -1 ])
+            /**
              * below changes state for current throwing newspaper
              * unclear if this should be actioned when last in ref array
              * perhaps set to null after final throw? -> would need checks that not null in throwing logic
              */
             // should be from global state -> to allow reset to zero
-            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1))            
+            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1)) 
+            /**
+             * Logic for svg to follow mouse
+             * ideally tween back to player model
+             * have pointer from state
+             * have yellow click animation on playermodal; remove when aiming
+              */
+            // const circle = aimingCircleRef.current
+            // if (circle) {
+            //     console.log("state: ", state)
+            //     const mousePos = state.mouse
+        
+            //   if (aiming) {
+            //     arrow.style.display = ''
+            //   } else {
+            //     circle.style.transform = `
+            //       translate(${mousePos.x}px, ${mousePos.y}px)
+            //       rotate(0rad)
+            //       scaleX(1)
+            //     `;
+            //   }
+            // }
+
+
         }
         
         /**
@@ -329,6 +360,7 @@ export default function Player({canvasIsClicked}) {
             // TODO: allow for drag of mouse -> distance of drag more force
             setPointLocation(event.point)
             setAiming(true)
+            setIsAiming(true)
             // on release -> throw newspaper
         }
     }
@@ -345,10 +377,17 @@ export default function Player({canvasIsClicked}) {
     // perhaps change thrown with normal paper mesh
     // each time thrown selected -> add mesh location to array -> if mesh velocity == 0
      */
-
+        // if aiming have hand on paper? possible? - try cube - non rigidboy
 
     return <>
 
+        <mesh
+        ref={handRef}
+        position={[ 0, -5, -1 ]}
+        >
+            <boxGeometry args={ [ 0.1, 0.1, 0.1 ] } />
+            <meshStandardMaterial flatShading color="#E2B8B4" />
+        </mesh>
     <RigidBody
         ref={ playerRef }
         restitution={ 0.2 }

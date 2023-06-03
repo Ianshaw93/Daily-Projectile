@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import useGame from "./stores/useGame"
 import { addEffect } from "@react-three/fiber"
 
@@ -7,15 +7,22 @@ export default function Interface() {
     const startingNumPapers = useGame((state) => {return state.startingNumPapers}) 
     const papersDelivered = useGame((state) => state.papersDelivered) 
     const phase = useGame((state) => state.phase)
-    const restart = useGame((state) => state.restart)
-    const minDistance = useGame((state) => state.minDistance)
     
+    const restart = useGame((state) => state.restart)  
+    const isAiming = useGame((state) => state.isAiming)
+
+    const arrowRef = useRef();
+    const startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [mousePos, setMousePos] = useState({...startPos});
+
     let pDelivered = 0
     const deliveredRef = useRef()
     const timeRef1 = useRef()
     const timeRef2 = useRef()
     const distanceRef = useRef()
     console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
+    let release_prompt_text_color;
 
     useEffect(() => {
         const unsubscribeEffect = addEffect(() => {
@@ -46,12 +53,66 @@ export default function Interface() {
              */
             pDelivered = state.papersDelivered
 
+            
         })
-
+        const handleMouseMove = (event) => {
+            setMousePos({ x: event.clientX, y: event.clientY });
+          };            
+        window.addEventListener('mousemove', handleMouseMove);
         return () => {
             unsubscribeEffect()
+            window.removeEventListener('mousemove', handleMouseMove);
         }
     } ,[])
+    // todo -> tween back to middle on release
+    useEffect(() => {
+        const arrow = arrowRef.current;
+        if (arrow) {
+          const dx = mousePos.x - startPos.x;
+          const dy = mousePos.y - startPos.y;
+          const angle = Math.atan2(dy, dx);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const startX = mousePos.x - 15
+          const startY = mousePos.y - 15
+        //   distance changes color
+        // use max dx, or dy
+        // should be zero to 1
+        const relative_dx = dx / (window.innerWidth / 2)
+        const relative_dy = dy / (window.innerHeight / 2)
+        const magnitude = Math.max(Math.abs(relative_dx), Math.abs(relative_dy))
+        let color = 'black'
+        if (magnitude > 0.8) {
+            color = 'red'
+        } else if (magnitude > 0.65 && magnitude < 0.8) {
+            color = 'orange'
+        } else if (magnitude > 0.45 && magnitude < 0.65) {
+            color = 'yellow'
+        } else if (magnitude > 0.3 && magnitude < 0.45) {
+            color = 'green'
+        } else if (magnitude > 0.15 && magnitude < 0.3) {
+            color = 'blue'
+        }
+          console.log("dist: ", magnitude)
+          release_prompt_text_color = color
+          if (isAiming) {
+            arrow.style.display = ''
+            arrow.style.fill = color
+            arrow.style.color = color
+            arrow.style.transform = `
+              translate(${startX}px, ${startY}px)
+            
+            `;
+          } else {
+            arrow.style.display = 'none'
+            arrow.style.fill = 'black'
+            arrow.style.transform = `
+              translate(${startPos.x}px, ${startPos.y}px)
+              rotate(0rad)
+              scaleX(1)
+            `;
+          }
+        }
+      }, [mousePos, isAiming]);
 
     let papersThrown = startingNumPapers - papersLeft
     // cross emojis
@@ -73,6 +134,7 @@ export default function Interface() {
      * 
      */
     console.log("delivered", papersDelivered)
+    let svg_dims = 60
     return (<div className="interface">
 
         { isTimed ? <div ref={timeRef1} className="time"></div> : null }
@@ -89,7 +151,16 @@ export default function Interface() {
         </>
         
         ) }
-
+        <div 
+            class="aiming-circle" 
+            ref={arrowRef}
+            style={{transform: 'translate(-15px, +15px)'}}
+        >
+            <div class="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1, color: release_prompt_text_color }}>
+                {/* have text change colour and be at centre of pointer */}
+                release to 🎯
+            </div>
+        </div>
         <div className="papersLeft">{papers}</div>
         <div className="crossOverlayPapersLeft">{crosses}</div>
     </div>)
