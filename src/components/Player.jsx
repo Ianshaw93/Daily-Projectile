@@ -185,9 +185,10 @@ export default function Player({canvasIsClicked}) {
         }
         
         const cameraTarget = new THREE.Vector3()
+        // when paper in the air, camera follows until y <= 0.1m
         if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
             cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
-        } else {
+        } else { // when paper not in the air follow player
 
             cameraTarget.copy(playerPosition)
         }
@@ -235,12 +236,15 @@ export default function Player({canvasIsClicked}) {
                         handRef.current.position.set(playerPosition.x + state.mouse.x, playerPosition.y + 0.6, playerPosition.z - state.mouse.y + 0.2)
                         
                         // console.log("paperQuantity: ", paperQuantity)
-                    } else {
+                    } else { // not sure why this is needed?
                         throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
                         
                     }
                     playerRef.current.enableRotation=true
-                    const eulerRotation = new THREE.Euler(0, 90, 0)
+                    // let y_angle
+                    let theta = (Math.asin(state.pointer.x / 2.5)) //* 180 / Math.PI
+                    console.log("theta: ", theta)
+                    const eulerRotation = new THREE.Euler(0, theta + ( Math.PI / 2 ), 0)
                     // should always face camera
                     // later lerp or use animation
                     const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
