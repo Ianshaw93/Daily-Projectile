@@ -164,33 +164,28 @@ export default function Player({canvasIsClicked}) {
 
         const cameraPosition = new THREE.Vector3()
         cameraPosition.copy(playerPosition)
-        // y position constant (height above player)
+        // y position constant (height above player) // was 0.9
         cameraPosition.y += 0.9
-        // below only if aiming not true
-        // if newspaper just thrown
-        // if (thrown && !aiming && thrownIndexArray.length && paperRefs.current[thrownIndexArray[-1]]) {
-
-        // }
-        // else 
+        let defaultZCamDiff = 1 // should change to roughly arm length
         if (!aiming) {
-        cameraPosition.z += 2.5
+        cameraPosition.z += defaultZCamDiff
     
     }
         else {
             // get difference between player centre and position
             cameraPosition.x += state.pointer.x
-            cameraPosition.z += Math.sqrt(Math.pow(2.5, 2) - Math.pow(state.pointer.x, 2))
+            cameraPosition.z += Math.sqrt(Math.pow(defaultZCamDiff, 2) - Math.pow(state.pointer.x, 2))
             // if aiming true -> go on circular arc
 
         }
-        
+        // console.log("playerPos: ", playerPosition)
         const cameraTarget = new THREE.Vector3()
         // when paper in the air, camera follows until y <= 0.1m
         if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
             cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
         } else { // when paper not in the air follow player
-
-            cameraTarget.copy(playerPosition)
+            cameraTarget.copy({x: playerPosition.x, y: playerPosition.y + 0.75, z: playerPosition.z})
+            // cameraTarget.copy(playerPosition)
         }
 
         smoothedCameraPositon.lerp(cameraPosition, 5 * delta)
@@ -241,11 +236,9 @@ export default function Player({canvasIsClicked}) {
                         
                     }
                     playerRef.current.enableRotation=true
-                    // let y_angle
-                    let theta = (Math.asin(state.pointer.x / 2.5)) //* 180 / Math.PI
-                    console.log("theta: ", theta)
+                    let theta = (Math.asin(state.pointer.x / defaultZCamDiff)) 
                     const eulerRotation = new THREE.Euler(0, theta + ( Math.PI / 2 ), 0)
-                    // should always face camera
+                    // arms in line with camera with lead onto target
                     // later lerp or use animation
                     const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
                     playerRef.current.setRotation(quarternionRotation, true)
