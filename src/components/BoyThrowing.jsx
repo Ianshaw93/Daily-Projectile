@@ -22,12 +22,9 @@ export function BoyThrowing(props) {
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
-        <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+        <group name="Armature002" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <primitive object={nodes.mixamorig6Hips} />
-          <skinnedMesh name="Ch09" geometry={nodes.Ch09.geometry} material={materials.Ch09_body} skeleton={nodes.Ch09.skeleton} />
-        </group>
-        <group name="Armature001" position={[0.6, 0.37, -1.81]} rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
-          <primitive object={nodes.mixamorig6Hips_1} />
+          <skinnedMesh name="Ch09" geometry={nodes.Ch09.geometry} material={materials['Ch09_body.001']} skeleton={nodes.Ch09.skeleton} />
         </group>
       </group>
     </group>
