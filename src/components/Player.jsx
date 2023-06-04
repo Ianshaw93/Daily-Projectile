@@ -1,11 +1,11 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useKeyboardControls, Html } from "@react-three/drei";
+import { useKeyboardControls, Html } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
-import { Scooter } from './Scooter.jsx'
-import { Paperguy } from "./Paperguy";
+// import { Paperguy } from "./Paperguy";
+import { BoyThrowing } from "./BoyThrowing";
 
 
 // isCanvasClicked sent as prop 
@@ -166,7 +166,7 @@ export default function Player({canvasIsClicked}) {
         cameraPosition.copy(playerPosition)
         // y position constant (height above player) // was 0.9
         cameraPosition.y += 0.9
-        let defaultZCamDiff = 1 // should change to roughly arm length
+        let defaultZCamDiff = 2 // should change to roughly arm length
         if (!aiming) {
         cameraPosition.z += defaultZCamDiff
     
@@ -178,7 +178,6 @@ export default function Player({canvasIsClicked}) {
             // if aiming true -> go on circular arc
 
         }
-        // console.log("playerPos: ", playerPosition)
         const cameraTarget = new THREE.Vector3()
         // when paper in the air, camera follows until y <= 0.1m
         if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
@@ -225,12 +224,10 @@ export default function Player({canvasIsClicked}) {
                         // change to follow pointer x and y -> like impulse?
                         // change in arc like with arrow?
                         // change x and z only
-                        console.log("handRef: ", handRef.current)
                         // find max difference in screen at aiming area
                         throwingNewspaper.current.setTranslation({x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2})
                         handRef.current.position.set(playerPosition.x + state.mouse.x, playerPosition.y + 0.6, playerPosition.z - state.mouse.y + 0.2)
                         
-                        // console.log("paperQuantity: ", paperQuantity)
                     } else { // not sure why this is needed?
                         throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
                         
@@ -285,34 +282,6 @@ export default function Player({canvasIsClicked}) {
              */
 
             handRef.current.position.set([ 0, -5, -1 ])
-            /**
-             * below changes state for current throwing newspaper
-             * unclear if this should be actioned when last in ref array
-             * perhaps set to null after final throw? -> would need checks that not null in throwing logic
-             */
-            // should be from global state -> to allow reset to zero
-            // setCurrentThrowingPaper(Math.min(startingNumPapers - 1 ,startingNumPapers - papersLeft + 1)) 
-            /**
-             * Logic for svg to follow mouse
-             * ideally tween back to player model
-             * have pointer from state
-             * have yellow click animation on playermodal; remove when aiming
-              */
-            // const circle = aimingCircleRef.current
-            // if (circle) {
-            //     console.log("state: ", state)
-            //     const mousePos = state.mouse
-        
-            //   if (aiming) {
-            //     arrow.style.display = ''
-            //   } else {
-            //     circle.style.transform = `
-            //       translate(${mousePos.x}px, ${mousePos.y}px)
-            //       rotate(0rad)
-            //       scaleX(1)
-            //     `;
-            //   }
-            // }
 
 
         }
@@ -322,20 +291,12 @@ export default function Player({canvasIsClicked}) {
          * bug fixed: -3y triggered before paper is thrown
          * by checking that index is in the thrownIndexArray
          */
-        // console.group("onFrame debug", currentThrowingPaper, thrownPaperLocations.length)
-        // console.log("first condish: ", thrownPaperLocations.length < currentThrowingPaper)
-        // console.log("second a condish: ", currentThrowingPaper == startingNumPapers - 1)
-        // console.log("second b condish: ", thrownPaperLocations.length == currentThrowingPaper)
-        // console.groupEnd()
 
         if (thrownPaperLocations.length < currentThrowingPaper || (currentThrowingPaper == startingNumPapers - 1 && thrownPaperLocations.length == currentThrowingPaper)) { // perhaps check that current > 0 as players may throw 2 in quick succession
             // if not last index; use current index subtract 1. Otherwise if last index use current index.
             let diff = currentThrowingPaper - thrownPaperLocations.length
             let chosenIndex = currentThrowingPaper - diff
             let currentMesh = paperRefs.current[chosenIndex].current
-            // console.log("currentMesh: ", currentThrowingPaper, thrownPaperLocations)
-            // console.log("currentMeshTranslation: ",currentMesh.linvel() && currentMesh.linvel())
-            // console.log("thrownIndexArray.includes(chosenIndex) :", chosenIndex,thrownIndexArray.includes(chosenIndex) )
                 if ( thrownIndexArray.includes(chosenIndex) && ((currentMesh.linvel().y == 0 && currentMesh.linvel().z == 0) || currentMesh.translation().y < -3)) {
                     // add location to array
                     let newLocation = currentMesh.translation()
@@ -395,13 +356,14 @@ export default function Player({canvasIsClicked}) {
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
         enableRotation={false}
-        colliders={false}
+        // colliders={false}
         >
             {/* when throwing model to turn side on */}
-        <Paperguy
+        <BoyThrowing
             ref={ modelRef }
             rotation={[0, Math.PI, 0]}
             scale={1}
+            action={'throw'}
             
         />
         <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>

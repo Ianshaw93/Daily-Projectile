@@ -21,7 +21,6 @@ export default function Interface() {
     const timeRef1 = useRef()
     const timeRef2 = useRef()
     const distanceRef = useRef()
-    console.log("papersLeft, papersDelivered: ", papersLeft, papersDelivered)
     let release_prompt_text_color;
 
     useEffect(() => {
@@ -92,7 +91,6 @@ export default function Interface() {
         } else if (magnitude > 0.15 && magnitude < 0.3) {
             color = 'blue'
         }
-          console.log("dist: ", magnitude)
           release_prompt_text_color = color
           if (isAiming) {
             arrow.style.display = ''
@@ -133,7 +131,6 @@ export default function Interface() {
      * TODO: have different screen for end of level
      * 
      */
-    console.log("delivered", papersDelivered)
     let svg_dims = 60
     return (<div className="interface">
 
