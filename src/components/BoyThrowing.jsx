@@ -5,18 +5,32 @@ Command: npx gltfjsx@6.1.4 public/models/boyThrowing.glb
 
 import React, { useEffect, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
+import * as THREE from 'three'
 
 export function BoyThrowing(props) {
   const group = useRef()
   const { nodes, materials, animations } = useGLTF('models/boyThrowing.glb')
   const { actions } = useAnimations(animations, group)
   let action = props.action
+  action = 'throw.001'
+  
+  // 'throw.001'
+  // 'aim.001'
+  // rest
   useEffect(() =>
   {
-    console.log(actions[action])
+    console.log(actions)
     if (actions[action]) {
-
-      actions[action].play()
+      let currentAction = actions[action]
+      currentAction.clampWhenFinished = true
+      currentAction.play().repetitions = 1
+      if (action == 'throw.001') {
+        // action rest
+        let currentAction = actions["rest"]
+        currentAction.clampWhenFinished = true
+        currentAction.play().repetitions = 1
+      }
+      // actions[action].paused = true
     }
   }, [action])
   return (
