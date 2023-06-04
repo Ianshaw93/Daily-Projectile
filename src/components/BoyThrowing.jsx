@@ -23,6 +23,9 @@ export function BoyThrowing(props) {
           <primitive object={nodes.mixamorig6Hips} />
           <skinnedMesh name="Ch09" geometry={nodes.Ch09.geometry} material={materials.Ch09_body} skeleton={nodes.Ch09.skeleton} />
         </group>
+        <group name="Armature001" position={[0.6, 0.37, -1.81]} rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+          <primitive object={nodes.mixamorig6Hips_1} />
+        </group>
       </group>
     </group>
   )
