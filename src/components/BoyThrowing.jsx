@@ -11,10 +11,13 @@ export function BoyThrowing(props) {
   const { nodes, materials, animations } = useGLTF('models/boyThrowing.glb')
   const { actions } = useAnimations(animations, group)
   let action = props.action
-  useEffect(() => {
-    console.log(actions)
-    actions[action]
-    .play()
+  useEffect(() =>
+  {
+    console.log(actions[action])
+    if (actions[action]) {
+
+      actions[action].play()
+    }
   }, [action])
   return (
     <group ref={group} {...props} dispose={null}>

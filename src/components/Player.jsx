@@ -363,7 +363,7 @@ export default function Player({canvasIsClicked}) {
             ref={ modelRef }
             rotation={[0, Math.PI, 0]}
             scale={1}
-            action={'throw'}
+            action={'aim'}
             
         />
         <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>
