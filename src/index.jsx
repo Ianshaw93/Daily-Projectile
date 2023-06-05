@@ -28,7 +28,7 @@ function CanvasComponent(props) {
 const root = ReactDOM.createRoot(document.querySelector('#root'))
 
 root.render(
-    // <StrictMode>
+    <StrictMode>
         <KeyboardControls
             map={ [
                 { name: 'forward', keys: [ 'ArrowUp', 'KeyW'] },
@@ -50,5 +50,5 @@ root.render(
                 />
             <Interface />
         </KeyboardControls>
-    // </StrictMode>
+    </StrictMode>
 )
