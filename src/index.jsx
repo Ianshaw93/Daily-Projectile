@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { Canvas } from '@react-three/fiber'
 import Experience from './Experience.jsx'
 import { KeyboardControls } from '@react-three/drei'
-import { StrictMode, useRef, useState } from 'react'
+import { StrictMode, Suspense, useRef, useState } from 'react'
 import Interface from './Interface'
 
 function CanvasComponent(props) {
@@ -19,7 +19,9 @@ function CanvasComponent(props) {
 
     return (
         <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef} onContextMenu={(e) => e.preventDefault()}>
-          <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>
+            <Suspense fallback={null}>
+                <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>
+            </Suspense>
         </Canvas>
       );
 }
