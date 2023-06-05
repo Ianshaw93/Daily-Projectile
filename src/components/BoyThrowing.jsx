@@ -12,11 +12,7 @@ export function BoyThrowing(props) {
   const { nodes, materials, animations } = useGLTF('models/boyThrowing.glb')
   const { actions } = useAnimations(animations, group)
   let action = props.action
-  // action = 'throw.001'
-  
-  // 'throw.001'
-  // 'aim.001'
-  // rest
+
   useEffect(() =>
   {
     console.log(action)
@@ -24,16 +20,15 @@ export function BoyThrowing(props) {
       let currentAction = actions[action]
       currentAction.clampWhenFinished = true
       currentAction.setLoop(THREE.LoopOnce)
-      currentAction.reset().play()//.repetitions = 1
+      currentAction.reset().play()
       if (action == 'throw.001') {
         // action rest
         let currentAction = actions["rest"]
         currentAction.clampWhenFinished = true
         currentAction.setLoop(THREE.LoopOnce)
 
-        currentAction.reset().play()//.repetitions = 1
+        currentAction.reset().play()
       }
-      // actions[action].paused = true
     }
   }, [action])
   return (
