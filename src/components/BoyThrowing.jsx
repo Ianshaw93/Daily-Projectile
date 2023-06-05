@@ -38,7 +38,7 @@ export function BoyThrowing(props) {
       <group name="Scene">
         <group name="Armature002" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <primitive object={nodes.mixamorig6Hips} />
-          <skinnedMesh name="Ch09" geometry={nodes.Ch09.geometry} material={materials['Ch09_body.001']} skeleton={nodes.Ch09.skeleton} />
+          <skinnedMesh name="Ch09" geometry={nodes.Ch09.geometry} material={materials['Ch09_body.001']} material-transparent material-opacity={0.3} skeleton={nodes.Ch09.skeleton}/>
         </group>
       </group>
     </group>

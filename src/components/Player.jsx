@@ -374,6 +374,8 @@ export default function Player({canvasIsClicked}) {
             rotation={[0, Math.PI, 0]}
             scale={1}
             action={currentAction}
+            opacity={0.1}
+            transparent={true}
         />
                     <Html>
                 <div 
