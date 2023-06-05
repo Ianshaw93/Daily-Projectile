@@ -149,11 +149,11 @@ export default function Interface() {
         
         ) }
         <div 
-            class="aiming-circle" 
+            className="aiming-circle" 
             ref={arrowRef}
             style={{transform: 'translate(-15px, +15px)'}}
         >
-            <div class="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1, color: release_prompt_text_color }}>
+            <div className="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1, color: release_prompt_text_color }}>
                 {/* have text change colour and be at centre of pointer */}
                 release to 🎯
             </div>

@@ -1,11 +1,12 @@
 import { CuboidCollider, CylinderCollider, RigidBody, useRapier } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useKeyboardControls, Html } from "@react-three/drei";
 import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
 // import { Paperguy } from "./Paperguy";
 import { BoyThrowing } from "./BoyThrowing";
+import { Sound } from "./Sound";
 
 
 // isCanvasClicked sent as prop 
@@ -61,6 +62,26 @@ export default function Player({canvasIsClicked}) {
     const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
     // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
 
+    const urls = {
+        fullTrack: 'sound/Throwing sounds.mp3'
+    }
+    const {camera} = useThree()
+    // vanilla code
+      const listener = new THREE.AudioListener()
+      camera.add(listener)
+      const audioLoader = new THREE.AudioLoader()
+    
+      const soundEffect = new THREE.Audio( listener )
+    
+      audioLoader.load(urls.fullTrack , function(buffer) {
+        console.log("track loaded")
+        soundEffect.setBuffer( buffer )
+        soundEffect.setLoop( true )
+        soundEffect.setVolume( 1 )
+        // soundEffect.play()
+      })
+    
+    
     const jump = () => {
 
         const origin = playerRef.current.translation()
@@ -261,8 +282,11 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
+            console.log("soundEffect: ", soundEffect)
+            soundEffect.play() // why sound affect not actioned here?
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
+
 
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
@@ -272,6 +296,10 @@ export default function Player({canvasIsClicked}) {
             setIsAiming(false)
             
             setCurrentAction(actionsObject.throw)
+            // action sound -> could be in player model
+            console.log("sound: ", Sound)
+            // soundEffect.play()
+
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -316,11 +344,12 @@ export default function Player({canvasIsClicked}) {
     })
 
     function initAim(event) {
-        
         if (thrown) { // not actioned on first go; only after at least 1 has been thrown
             setThrown(false)
         }
         if (papersLeft > 0) {
+            // soundEffect.play()
+
 
             // only if newspapers are left to throw!
             // Done: have object in place of newspaper - > cube for now
