@@ -19,16 +19,19 @@ export function BoyThrowing(props) {
   // rest
   useEffect(() =>
   {
-    console.log(actions)
+    console.log(action)
     if (actions[action]) {
       let currentAction = actions[action]
       currentAction.clampWhenFinished = true
-      currentAction.play().repetitions = 1
+      currentAction.setLoop(THREE.LoopOnce)
+      currentAction.reset().play()//.repetitions = 1
       if (action == 'throw.001') {
         // action rest
         let currentAction = actions["rest"]
         currentAction.clampWhenFinished = true
-        currentAction.play().repetitions = 1
+        currentAction.setLoop(THREE.LoopOnce)
+
+        currentAction.reset().play()//.repetitions = 1
       }
       // actions[action].paused = true
     }

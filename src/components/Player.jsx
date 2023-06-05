@@ -186,13 +186,13 @@ export default function Player({canvasIsClicked}) {
 
         }
         const cameraTarget = new THREE.Vector3()
-        // when paper in the air, camera follows until y <= 0.1m
-        if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
-            cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
-        } else { // when paper not in the air follow player
+        // // when paper in the air, camera follows until y <= 0.1m
+        // if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
+        //     cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
+        // } else { // when paper not in the air follow player
             cameraTarget.copy({x: playerPosition.x, y: playerPosition.y + 0.9, z: playerPosition.z}) //playerPosition.y + 0.75
             // cameraTarget.copy(playerPosition)
-        }
+        // }
 
         smoothedCameraPositon.lerp(cameraPosition, 5 * delta)
         smoothedCameraTarget.lerp(cameraTarget, 5 * delta)
