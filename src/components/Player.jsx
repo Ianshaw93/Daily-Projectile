@@ -22,7 +22,13 @@ export default function Player({canvasIsClicked}) {
     const resetPapers = useGame((state) => state.resetPapers)
     const setIsAiming = useGame((state) => state.setIsAiming)
 
+    const actionsObject = {
+        "throw": "throw.001",
+        "aim": "aim.001",
+        "rest": "rest"
+    }
 
+    const [currentAction, setCurrentAction] = useState(actionsObject.rest)
     // playerModel.scene.children.forEach((mesh) =>
     // {
     //     mesh.castShadow = true
@@ -165,13 +171,14 @@ export default function Player({canvasIsClicked}) {
         const cameraPosition = new THREE.Vector3()
         cameraPosition.copy(playerPosition)
         // y position constant (height above player) // was 0.9
-        cameraPosition.y += 0.9
+        cameraPosition.y += 1.2
         let defaultZCamDiff = 2 // should change to roughly arm length
         if (!aiming) {
         cameraPosition.z += defaultZCamDiff
     
     }
         else {
+            
             // get difference between player centre and position
             cameraPosition.x += state.pointer.x
             cameraPosition.z += Math.sqrt(Math.pow(defaultZCamDiff, 2) - Math.pow(state.pointer.x, 2))
@@ -183,7 +190,7 @@ export default function Player({canvasIsClicked}) {
         if (thrown && !aiming && thrownIndexArray.length && Math.abs(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.linvel().y) > 0.1) {
             cameraTarget.copy(paperRefs.current[thrownIndexArray[thrownIndexArray.length-1]].current.translation())
         } else { // when paper not in the air follow player
-            cameraTarget.copy({x: playerPosition.x, y: playerPosition.y + 0.75, z: playerPosition.z})
+            cameraTarget.copy({x: playerPosition.x, y: playerPosition.y + 0.9, z: playerPosition.z}) //playerPosition.y + 0.75
             // cameraTarget.copy(playerPosition)
         }
 
@@ -234,7 +241,7 @@ export default function Player({canvasIsClicked}) {
                     }
                     playerRef.current.enableRotation=true
                     let theta = (Math.asin(state.pointer.x / defaultZCamDiff)) 
-                    const eulerRotation = new THREE.Euler(0, theta + ( Math.PI / 2 ), 0)
+                    const eulerRotation = new THREE.Euler(0, theta - ( Math.PI / 4 ), 0) //  + ( Math.PI / 2 )
                     // arms in line with camera with lead onto target
                     // later lerp or use animation
                     const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
@@ -263,6 +270,8 @@ export default function Player({canvasIsClicked}) {
             // setThrownIndexArray((prev) => [...prev, currentThrowingPaper]) // add further index to list
             setAiming(false)
             setIsAiming(false)
+            
+            setCurrentAction(actionsObject.throw)
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
             subtractPaperLeft()
@@ -319,6 +328,7 @@ export default function Player({canvasIsClicked}) {
             setPointLocation(event.point)
             setAiming(true)
             setIsAiming(true)
+            setCurrentAction(actionsObject.aim)
             // on release -> throw newspaper
         }
     }
@@ -350,22 +360,38 @@ export default function Player({canvasIsClicked}) {
         ref={ playerRef }
         restitution={ 0.2 }
         friction={ 1 } 
-        onPointerDown={initAim}
+        // onPointerDown={initAim}
         linearDamping={ 0.5 }
         // angularDamping={ Infinity }
         position={ [ 0, 1, 0 ] }
         collisionGroup={1}
         enableRotation={false}
-        // colliders={false}
+        colliders={"hull"}
         >
             {/* when throwing model to turn side on */}
         <BoyThrowing
             ref={ modelRef }
             rotation={[0, Math.PI, 0]}
             scale={1}
-            action={'aim'}
-            
+            action={currentAction}
         />
+                    <Html>
+                <div 
+                    class="aiming-circle" 
+                    // ref={aimingCircleRef} 
+                    style={{ position: 'relative', left: '0%', top: '-0%', transform: 'translate(-50%, -450%)', fill: 'yellow', fillOpacity: 0.4}}
+                    onPointerDown={initAim}
+                >
+                    {!aiming ? <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+                    <img 
+                        src="001-drag-down.png"
+                        height={40}
+                    />
+                    </div> : null}
+                    <svg height="60" width="60">
+                    </svg>
+                </div>
+            </Html>
         <CuboidCollider args={ [ 0.1, 0.05, 0.3 ] }/>
     </RigidBody>
             {/* TODO: allow click and drag to set and aim for throw; release for throw */}

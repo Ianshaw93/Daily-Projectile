@@ -12,7 +12,7 @@ export function BoyThrowing(props) {
   const { nodes, materials, animations } = useGLTF('models/boyThrowing.glb')
   const { actions } = useAnimations(animations, group)
   let action = props.action
-  action = 'throw.001'
+  // action = 'throw.001'
   
   // 'throw.001'
   // 'aim.001'
