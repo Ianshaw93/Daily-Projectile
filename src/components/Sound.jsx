@@ -1,6 +1,7 @@
 import { useLoader, useThree } from '@react-three/fiber';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { AudioLoader, AudioListener, AudioAnalyser, Camera } from 'three';
+import useGame from '../stores/useGame';
 
 const urls = {
     fullTrack: '/sound/Throwing sounds.mp3'
@@ -42,32 +43,35 @@ const urls = {
 //     return <audio ref={ref} args={[listener]} {...props} />;
 //   });
 
-
+import * as THREE from "three"
 
 export function Sound(){
-    const sound = useRef();
+    const setSoundEffect = useGame((state) => state.setSoundEffect)
+  // zustand soundEffect -> to be actioned elsewhere
+    // const sound = useRef();
 
-    let track = urls.fullTrack
+    // let track = urls.fullTrack
     const urls = {
       fullTrack: 'sound/Throwing sounds.mp3'
   }
   const {camera} = useThree()
   // vanilla code
-    const listener = new AudioListener()
+    const listener = new THREE.AudioListener()
     camera.add(listener)
-    const audioLoader = new AudioLoader()
+    const audioLoader = new THREE.AudioLoader()
   
-    const soundEffect = new Audio( listener )
+    const soundEffect = new THREE.Audio( listener )
   
     audioLoader.load(urls.fullTrack , function(buffer) {
       console.log("track loaded")
       soundEffect.setBuffer( buffer )
-      soundEffect.setLoop( true )
+      soundEffect.setLoop( false )
       soundEffect.setVolume( 1 )
-      soundEffect.play()
+      // soundEffect.play()
+      setSoundEffect(soundEffect)
     })
 
-return soundEffect
+// return soundEffect
     // return (
     //     <>
     //         <Audio ref={sound} track={track} />

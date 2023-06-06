@@ -22,6 +22,7 @@ export default function Player({canvasIsClicked}) {
     const end = useGame((state) => state.end)
     const resetPapers = useGame((state) => state.resetPapers)
     const setIsAiming = useGame((state) => state.setIsAiming)
+    const soundEffect = useGame((state) => state.soundEffect)// 
 
     const actionsObject = {
         "throw": "throw.001",
@@ -62,24 +63,24 @@ export default function Player({canvasIsClicked}) {
     const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
     // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
 
-    const urls = {
-        fullTrack: 'sound/Throwing sounds.mp3'
-    }
-    const {camera} = useThree()
-    // vanilla code
-      const listener = new THREE.AudioListener()
-      camera.add(listener)
-      const audioLoader = new THREE.AudioLoader()
+    // const urls = {
+    //     fullTrack: 'sound/Throwing sounds.mp3'
+    // }
+    // const {camera} = useThree()
+    // // vanilla code
+    //   const listener = new THREE.AudioListener()
+    //   camera.add(listener)
+    //   const audioLoader = new THREE.AudioLoader()
     
-      const soundEffect = new THREE.Audio( listener )
+    //   const soundEffect = new THREE.Audio( listener )
     
-      audioLoader.load(urls.fullTrack , function(buffer) {
-        console.log("track loaded")
-        soundEffect.setBuffer( buffer )
-        soundEffect.setLoop( true )
-        soundEffect.setVolume( 1 )
-        // soundEffect.play()
-      })
+    //   audioLoader.load(urls.fullTrack , function(buffer) {
+    //     console.log("track loaded")
+    //     soundEffect.setBuffer( buffer )
+    //     soundEffect.setLoop( true )
+    //     soundEffect.setVolume( 1 )
+    //     // soundEffect.play()
+    //   })
     
     
     const jump = () => {
@@ -282,11 +283,9 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            console.log("soundEffect: ", soundEffect)
-            soundEffect.play() // why sound affect not actioned here?
             let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
-
+            soundEffect.play()
 
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
@@ -296,9 +295,6 @@ export default function Player({canvasIsClicked}) {
             setIsAiming(false)
             
             setCurrentAction(actionsObject.throw)
-            // action sound -> could be in player model
-            console.log("sound: ", Sound)
-            // soundEffect.play()
 
             // below should be actioned on aiming but returned to pile if not thrown
             // setPaperQuantity((current) => current - 1)
@@ -348,8 +344,7 @@ export default function Player({canvasIsClicked}) {
             setThrown(false)
         }
         if (papersLeft > 0) {
-            // soundEffect.play()
-
+            
 
             // only if newspapers are left to throw!
             // Done: have object in place of newspaper - > cube for now

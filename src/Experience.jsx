@@ -5,8 +5,8 @@ import Player from './components/Player'
 import Demo from './Demo.jsx'
 import { Sound } from './components/Sound.jsx'
 import { Suspense } from 'react'
-import { Audio, AudioListener, AudioLoader } from 'three'
-import { useThree } from '@react-three/fiber'
+// import { Audio, AudioListener, AudioLoader } from 'three'
+// import { useThree } from '@react-three/fiber'
 
 // click events on canvas as props; send to player
 export default function Experience({canvasIsClicked, canvasRef})
@@ -44,7 +44,7 @@ export default function Experience({canvasIsClicked, canvasRef})
             />
             <Suspense>
 
-                {/* <Sound /> */}
+                <Sound />
             </Suspense>
         </Physics>
 
