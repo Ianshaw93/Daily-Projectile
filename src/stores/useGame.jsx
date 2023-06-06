@@ -15,7 +15,12 @@ export default create(subscribeWithSelector((set) => {
         distanceArray: [],
         minDistance: null, 
         isAiming: false,
-        soundEffect: null, // later have object 
+        // soundEffects: {
+        aimSound: null,
+        throwSound: null,
+        // }, // later have object
+
+
 
         /**
          * Time
@@ -142,9 +147,14 @@ export default create(subscribeWithSelector((set) => {
             }))
         },
 
-        setSoundEffect: (sound) => {
+        setThrowEffect: (sound) => {
             set(() => ({
-                soundEffect: sound
+                throwSound: sound
+            }))
+        },
+        setAimEffect: (sound) => {
+            set(() => ({
+                aimSound: sound
             }))
         }
 
