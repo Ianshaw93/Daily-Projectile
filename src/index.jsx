@@ -5,6 +5,7 @@ import Experience from './Experience.jsx'
 import { KeyboardControls } from '@react-three/drei'
 import { StrictMode, Suspense, useRef, useState } from 'react'
 import Interface from './Interface'
+import { LoadingScreen } from './components/LoadingScreen'
 
 function CanvasComponent(props) {
     const canvasRef = useRef()
@@ -17,12 +18,20 @@ function CanvasComponent(props) {
         setCanvasIsClicked(false)
     }
 
+    const [start, setStart] = useState(false) // should be accessible to interface -> move to zustand
+
+
     return (
-        <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef} onContextMenu={(e) => e.preventDefault()}>
-            <Suspense fallback={null}>
-                <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>
-            </Suspense>
-        </Canvas>
+        // TODO: have loading screen when not loaded
+        <>
+            <Canvas onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} {...props} ref={canvasRef} onContextMenu={(e) => e.preventDefault()}>
+                <Suspense fallback={null}>
+                    {/* start is boolean so can use && operator as is */}
+                    {start && <Experience pointerPosition={pointerPosition} canvasIsClicked={canvasIsClicked} canvasRef={canvasRef}/>}
+                </Suspense>
+            </Canvas>
+            <LoadingScreen started={start} onStarted={() => setStart(true)} />
+        </>
       );
 }
 
