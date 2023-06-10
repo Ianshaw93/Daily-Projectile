@@ -62,6 +62,8 @@ export default function Player({canvasIsClicked}) {
     const [ thrown, setThrown ] = useState(false)
     const thrownIndexArray = useGame((state) => state.thrownIndexArray)
     const addThrownPaperIndex = useGame((state) => state.addThrownPaperIndex)
+
+    const [magnitude, setMagnitude] = useState(null)
     // const [thrownIndexArray, setThrownIndexArray] = useState([]) // needs to be reset -> use in state
     
     const jump = () => {
@@ -264,10 +266,14 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            let magnitudePointer = Math.max(Math.abs(state.pointer.x/50), Math.abs(state.pointer.y/50))
-            let impulse = { x:-state.pointer.x/50, y: magnitudePointer, z:state.pointer.y/50 } // impulse paper in one spot
+            let magnitudePointer = Math.max(Math.abs(state.pointer.x), Math.abs(state.pointer.y))
+            let impulse = { x:-state.pointer.x/50, y: magnitudePointer/50, z:state.pointer.y/50 } // impulse paper in one spot
+            throwSound.playbackRate = 0.8 + magnitudePointer/4
+            throwSound.setVolume(magnitudePointer)
             throwSound.play()
-
+            // TODO: have impulse state -> affects sound and animations
+            setMagnitude(magnitudePointer) 
+            console.log("magPointer:  ", magnitudePointer)
             throwingNewspaper.current.applyImpulse(impulse)
             setThrown(true)
             addThrownPaperIndex(currentThrowingPaper)
@@ -395,6 +401,8 @@ export default function Player({canvasIsClicked}) {
             action={currentAction}
             opacity={0.1}
             transparent={true}
+            // add power zero to 1 => to multiply speed of throwing animation
+            magnitude={magnitude}
         />
                     <Html>
                 <div 

@@ -6,44 +6,29 @@ Command: npx gltfjsx@6.1.4 public/models/boyThrowing.glb
 import React, { useEffect, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
-import { useThree } from '@react-three/fiber'
 
 export function BoyThrowing(props) {
+  // TODO: change speed for how strong the throw is
+  // Also have animation for pulling arm further back depending on mouse position of player
   const group = useRef()
   const { nodes, materials, animations } = useGLTF('models/boyThrowing.glb')
-  const { actions } = useAnimations(animations, group)
+  const { actions, mixer } = useAnimations(animations, group)
   let action = props.action
-
-  const urls = {
-    fullTrack: 'sound/Throwing sounds.mp3'
-}
-  const {camera} = useThree()
-  // vanilla code
-    const listener = new THREE.AudioListener()
-    camera.add(listener)
-    const audioLoader = new THREE.AudioLoader()
-
-    const soundEffect = new THREE.Audio( listener )
-
-    audioLoader.load(urls.fullTrack , function(buffer) {
-      console.log("track loaded")
-      soundEffect.setBuffer( buffer )
-      soundEffect.setLoop( true )
-      soundEffect.setVolume( 1 )
-      // soundEffect.play()
-    })
+  let magnitude = props.magnitude
 
   useEffect(() =>
   {
     console.log(action)
     if (actions[action]) {
-      // if (action == 'throw.001') { 
-        // soundEffect.play()
-      // }
       let currentAction = actions[action]
       currentAction.clampWhenFinished = true
       currentAction.setLoop(THREE.LoopOnce)
       currentAction.reset().play()
+      if (action == 'throw.001') { 
+        mixer.timeScale = 3*magnitude // change depending on mouse release/ power
+      } else {
+        mixer.timeScale = 1
+      }
       if (action == 'throw.001') {
         // action rest
         let currentAction = actions["rest"]
