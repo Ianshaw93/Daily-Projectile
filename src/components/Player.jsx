@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
 // import { Paperguy } from "./Paperguy";
-import { BoyThrowing } from "./BoyThrowingRecentredOrigin";
+import { BoyThrowing } from "./BoyThrowing";
 
 
 // isCanvasClicked sent as prop 
