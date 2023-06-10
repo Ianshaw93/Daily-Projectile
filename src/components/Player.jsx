@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, createRef } from "react";
 import * as THREE from "three"
 import useGame from "../stores/useGame";
 // import { Paperguy } from "./Paperguy";
-import { BoyThrowing } from "./BoyThrowing";
+import { BoyThrowing } from "./BoyThrowingRecentredOrigin";
 
 
 // isCanvasClicked sent as prop 
@@ -345,6 +345,20 @@ export default function Player({canvasIsClicked}) {
     </>
     )
 
+    const { size } = useThree();
+    const translationRef = useRef(null);
+
+    console.log("useThree: ", useThree())
+  
+    useEffect(() => {
+      const viewportHeight = size.height;
+      const translationValue = `translate(-50%, -${viewportHeight*0.5}px)`;
+      if (translationRef.current) {
+
+          translationRef.current.style.transform = translationValue;
+      }
+    }, [size, translationRef.current]);
+
     /**
      *     // TODO: sense that paper landed on house tile -> throwing paper before moved again
     // perhaps change thrown with normal paper mesh
@@ -384,9 +398,12 @@ export default function Player({canvasIsClicked}) {
         />
                     <Html>
                 <div 
-                    class="aiming-circle" 
+                    class="aiming-circle"
+                    ref={translationRef} 
                     // ref={aimingCircleRef} 
-                    style={{ position: 'relative', left: '0%', top: '-0%', transform: 'translate(-50%, -450%)', fill: 'yellow', fillOpacity: 0.4}}
+                    // style={{ position: 'relative', left: '0%', top: '-0%', transform: 'translate(-50%, -450%)', fill: 'yellow', fillOpacity: 0.4}}
+                    style={{ position: 'fixed', left: '50%', top: '0%', transform: 'translate(-50%, -50%)', fill: 'yellow', fillOpacity: 0.4}}
+
                     onPointerDown={initAim}
                 >
                     {!aiming ? <div class="aiming-paper" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
