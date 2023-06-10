@@ -268,9 +268,12 @@ export default function Player({canvasIsClicked}) {
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
             let magnitudePointer = Math.max(Math.abs(state.pointer.x), Math.abs(state.pointer.y))
             let impulse = { x:-state.pointer.x/50, y: magnitudePointer/50, z:state.pointer.y/50 } // impulse paper in one spot
-            throwSound.playbackRate = 0.8 + magnitudePointer/4
-            throwSound.setVolume(magnitudePointer)
-            throwSound.play()
+            if (magnitudePointer > 0.5) {
+
+                throwSound.playbackRate = 0.8 + magnitudePointer/4
+                throwSound.setVolume(magnitudePointer)
+                throwSound.play()
+            }
             // TODO: have impulse state -> affects sound and animations
             setMagnitude(magnitudePointer) 
             console.log("magPointer:  ", magnitudePointer)
