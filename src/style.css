@@ -229,7 +229,7 @@ body,
   position: absolute;
   width: 10px; /* adjust to suit your needs */
   height: 40px; /* adjust to suit your needs */
-  background-color: gray;
+  /* background-color: gray; */
   border: 1px solid black
 }
 
