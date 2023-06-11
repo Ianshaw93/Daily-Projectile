@@ -21,6 +21,7 @@ export default function Interface() {
     const timeRef1 = useRef()
     const timeRef2 = useRef()
     const distanceRef = useRef()
+    const powerBarRef = useRef()
     let release_prompt_text_color;
 
     useEffect(() => {
@@ -66,6 +67,7 @@ export default function Interface() {
     // todo -> tween back to middle on release
     useEffect(() => {
         const arrow = arrowRef.current;
+        const powerbar = powerBarRef.current;
         if (arrow) {
           const dx = mousePos.x - startPos.x;
           const dy = mousePos.y - startPos.y;
@@ -93,6 +95,12 @@ export default function Interface() {
         }
           release_prompt_text_color = color
           if (isAiming) {
+            if (powerbar) {
+                powerbar.style.backgroundColor = color
+                powerbar.style.fill = color
+                powerbar.style.height = `${magnitude*100}%`
+                powerBarRef.current.style.width = '100%'
+            }
             arrow.style.display = ''
             arrow.style.fill = color
             arrow.style.color = color
@@ -153,6 +161,9 @@ export default function Interface() {
             ref={arrowRef}
             style={{transform: 'translate(-15px, +15px)'}}
         >
+            <div className="power-bar-container" style={{transform: 'translate(0px, -40px)'}}>
+                <div className="power-bar" ref={powerBarRef}></div>
+            </div>
             <div className="aiming-paper" style={{ position: 'absolute', top: '5%', left:'1.8%',zIndex: 1, color: release_prompt_text_color }}>
                 {/* have text change colour and be at centre of pointer */}
                 release to 🎯

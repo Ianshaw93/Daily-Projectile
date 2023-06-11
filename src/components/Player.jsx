@@ -228,7 +228,9 @@ export default function Player({canvasIsClicked}) {
             const eulerRotation = new THREE.Euler(0, 0, 0)
             const quarternionRotation = new THREE.Quaternion().setFromEuler(eulerRotation)
             playerRef.current.setRotation(quarternionRotation, true)            
-        }
+        } 
+        let magnitudePointer = Math.max(Math.abs(mouseX), Math.abs(mouseY))
+    
         // if()
         if (aiming && canvasIsClicked) { // aiming
             /**
@@ -258,6 +260,7 @@ export default function Player({canvasIsClicked}) {
                         throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
                         
                     }
+
                     playerRef.current.enableRotation=true
                     let theta = (Math.asin(mouseX / defaultZCamDiff)) 
                     const eulerRotation = new THREE.Euler(0, theta - ( Math.PI / 4 ), 0) //  + ( Math.PI / 2 )
@@ -280,8 +283,8 @@ export default function Player({canvasIsClicked}) {
         }
         // throwing when pointer lifted
         if (aiming && !canvasIsClicked && throwingNewspaper.current) {
-            let magnitudePointer = Math.max(Math.abs(state.pointer.x), Math.abs(state.pointer.y))
-            let impulse = { x:-state.pointer.x/50, y: magnitudePointer/50, z:state.pointer.y/50 } // impulse paper in one spot
+            
+            let impulse = { x:-mouseX/50, y: magnitudePointer/50, z:mouseY/50 } // impulse paper in one spot
             if (magnitudePointer > 0.5) {
 
                 throwSound.playbackRate = 0.8 + magnitudePointer/4
@@ -436,7 +439,9 @@ export default function Player({canvasIsClicked}) {
                         src="001-drag-down.png"
                         height={40}
                     />
-                    </div> : null}
+                    </div> :     null
+                                }
+                    
                     <svg height="60" width="60">
                     </svg>
                 </div>
