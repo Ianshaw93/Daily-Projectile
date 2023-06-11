@@ -171,6 +171,17 @@ export default function Player({canvasIsClicked}) {
         // find difference in the vectors
         // below was trial and error to get the newspaper to follow the player 
         // get the difference in the vectors and applyTranslation to the newspaper
+
+        // bug x goofs to 0.8 and above when in the centre of the screen
+        // below work around for bug
+        let mouseX = state.mouse.x
+        let mouseY = state.mouse.y
+        if (Math.abs(mouseX) > 0.7) {
+            mouseX = 0
+        }
+        if (mouseY > 0.5) {
+            mouseY = 0
+        }
         // translation can be applied to kinematic rigidbody
 
         const cameraPosition = new THREE.Vector3()
@@ -185,9 +196,8 @@ export default function Player({canvasIsClicked}) {
         else {
             
             // get difference between player centre and position
-            cameraPosition.x += state.pointer.x
-            cameraPosition.z += Math.sqrt(Math.pow(defaultZCamDiff, 2) - Math.pow(state.pointer.x, 2))
-            // if aiming true -> go on circular arc
+            cameraPosition.x += mouseX
+            cameraPosition.z += Math.sqrt(Math.pow(defaultZCamDiff, 2) - Math.pow(mouseX, 2))
 
         }
         const cameraTarget = new THREE.Vector3()
@@ -226,6 +236,7 @@ export default function Player({canvasIsClicked}) {
             */
                
                 if (throwingNewspaper.current) {
+
                     
                     if(!thrown && throwingNewspaper.current){
                         // attempt -> paper always above body and transaparent paper with hand??
@@ -237,15 +248,18 @@ export default function Player({canvasIsClicked}) {
                         // change in arc like with arrow?
                         // change x and z only
                         // find max difference in screen at aiming area
-                        throwingNewspaper.current.setTranslation({x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2})
-                        handRef.current.position.set(playerPosition.x + state.mouse.x, playerPosition.y + 0.6, playerPosition.z - state.mouse.y + 0.2)
+                        // TODO: have a min radius behind player
+
+                        console.log("aimingPos: ",{x: playerPosition.x + state.mouse.x, y: playerPosition.y + 0.6, z: playerPosition.z - state.mouse.y + 0.2}, state.mouse, playerPosition, state.raycaster)
+                        throwingNewspaper.current.setTranslation({x: playerPosition.x + mouseX, y: playerPosition.y + 0.6, z: playerPosition.z - mouseY + 0.2})
+                        handRef.current.position.set(playerPosition.x + mouseX, playerPosition.y + 0.6, playerPosition.z - mouseY + 0.2)
                         
                     } else { // not sure why this is needed?
                         throwingNewspaper.current.setTranslation({x: playerPosition.x, y: playerPosition.y+ 0.6, z: playerPosition.z + 0.2})
                         
                     }
                     playerRef.current.enableRotation=true
-                    let theta = (Math.asin(state.pointer.x / defaultZCamDiff)) 
+                    let theta = (Math.asin(mouseX / defaultZCamDiff)) 
                     const eulerRotation = new THREE.Euler(0, theta - ( Math.PI / 4 ), 0) //  + ( Math.PI / 2 )
                     // arms in line with camera with lead onto target
                     // later lerp or use animation
