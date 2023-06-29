@@ -22,6 +22,6 @@ This project really honed my React skills, having to juggle the pointer events, 
 * Zustand minimal/great state management
 
 # Credits
-Bruno Simon's three js journey course
+Bruno Simon's [three js journey course](https://threejs-journey.com/)
 
 
