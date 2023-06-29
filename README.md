@@ -1,14 +1,14 @@
 # Daily Projectile
-You play as the local paperboy whose looking to launch newspapers at target houses.
+Deliver all the newspapers before the time runs out.
 
 ![Daily Projectile Demo](https://github.com/Ianshaw93/Daily-Projectile/assets/76686112/c11ecfc1-2f03-446b-87d7-ca9daabe8e36)
 
 Live site: [daily-projectile.vercel.app](https://daily-projectile.vercel.app/)
 
-This game was created using the following technologies:
-* react
-* vite
-* three js (react three fiber wrapper)
+This browser based game was created using the following technologies:
+* react js
+* vite js
+* three js (react three fiber wrapper i.e. r3f)
 * rapier physics
 * zustand state management
 
