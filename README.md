@@ -12,6 +12,10 @@ This browser based game was created using the following technologies:
 * rapier physics
 * zustand state management
 
+
+https://github.com/Ianshaw93/Daily-Projectile/assets/76686112/13918564-dc2f-48ae-bbc1-07fe16a16a20
+
+
 # What I Learned
 This project really honed my React skills, having to juggle the pointer events, applying forces to the newspaper rigid body being thrown and throwing feedback through the on-screen power bar, 3d model animations, and sound effects.
 
