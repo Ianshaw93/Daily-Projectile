@@ -22,6 +22,6 @@ This project really honed my React skills, having to juggle the pointer events, 
 * Zustand minimal/great state management
 
 # Credits
-[Bruno Simon](https://bruno-simon.com/)'s [three js journey course](https://threejs-journey.com/)
+This project is original however I would like to thank [Bruno Simon](https://bruno-simon.com/) and his [three js journey course](https://threejs-journey.com/) for teaching the fundamentals of three js and react three fiber.
 
 
