@@ -1,7 +1,7 @@
 # Daily Projectile
 Deliver all the newspapers before the time runs out.
 
-![Daily Projectile Gif](https://github.com/Ianshaw93/Daily-Projectile/assets/76686112/c11ecfc1-2f03-446b-87d7-ca9daabe8e36)
+![Daily Projectile Gif](https://github.com/Ianshaw93/Daily-Projectile/assets/76686112/db6492b8-01cd-4589-b749-49ce6ca9ad23)
 
 Live site: [daily-projectile.vercel.app](https://daily-projectile.vercel.app/)
 
