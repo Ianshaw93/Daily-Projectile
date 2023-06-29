@@ -3,7 +3,7 @@ You play as the local paperboy whose looking to launch newspapers at target hous
 
 ![Daily Projectile Demo](https://github.com/Ianshaw93/Daily-Projectile/assets/76686112/c11ecfc1-2f03-446b-87d7-ca9daabe8e36)
 
-Live site: daily-projectile.vercel.app
+Live site: [daily-projectile.vercel.app](https://daily-projectile.vercel.app/)
 
 This game was created using the following technologies:
 * react
